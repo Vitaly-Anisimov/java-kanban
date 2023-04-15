@@ -3,12 +3,12 @@ package tasks;
 public class Task {
     private int id;
     private String name;
-    private String caption;
+    private String description;
     private TaskStatus status;
 
     public Task(String name, String caption, TaskStatus status) {
         this.name = name;
-        this.caption = caption;
+        this.description = caption;
         this.status = status;
     }
 
@@ -20,8 +20,8 @@ public class Task {
         return name;
     }
 
-    public String getCaption() {
-        return caption;
+    public String getDescription() {
+        return description;
     }
 
     public TaskStatus getStatus() {
@@ -36,8 +36,8 @@ public class Task {
         this.name = name;
     }
 
-    public void setCaption(String caption) {
-        this.caption = caption;
+    public void setDescription(String caption) {
+        this.description = caption;
     }
 
     public void setStatus(TaskStatus status) {
@@ -49,7 +49,7 @@ public class Task {
         return "Task{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
-                ", caption='" + caption + '\'' +
+                ", description='" + description + '\'' +
                 ", status='" + status + '\'' +
                 '}';
     }

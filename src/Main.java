@@ -11,7 +11,7 @@ public class Main {
         SubTask subTask;
         TaskManager taskManager = new TaskManager();
         Task task = new Task("Первая задача", "Просто задача", TaskStatus.DONE);
-        Epic epic = new Epic("Утренние дела", "Дела которые нужно делать утром", TaskStatus.NEW);
+        Epic epic = new Epic("Утренние дела", "Дела которые нужно делать утром");
         taskManager.addEpic(epic);
         subTask = new SubTask("Открыть глаза", "Первое действие", TaskStatus.NEW, epic.getId());
         taskManager.addSubTask(subTask);
