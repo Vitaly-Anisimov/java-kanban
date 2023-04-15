@@ -6,9 +6,9 @@ public class Task {
     private String description;
     private TaskStatus status;
 
-    public Task(String name, String caption, TaskStatus status) {
+    public Task(String name, String description, TaskStatus status) {
         this.name = name;
-        this.description = caption;
+        this.description = description;
         this.status = status;
     }
 
@@ -36,8 +36,8 @@ public class Task {
         this.name = name;
     }
 
-    public void setDescription(String caption) {
-        this.description = caption;
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public void setStatus(TaskStatus status) {

@@ -105,14 +105,22 @@ public class TaskManager {
 
     public void updateSubTask(SubTask subTask) {
         Epic epic = epics.get(subTask.getEpicId());
+        //Заметил, что при обновлении подзадачи, расширяется коллекция в Epic, после чего некорректно отрабатывает метод getSubTask
+        for (int i = 0; i < epic.getIdSubTask().size(); i++) {
+            Integer epicSubTaskId = epic.getIdSubTask().get(i);
+            if (epicSubTaskId == subTask.getId()) {
+                epic.deleteSubTaskId(epicSubTaskId);
+            }
+        }
+        epic.addSubTaskId(subTask.getId());
         subTasks.put(subTask.getId(), subTask);
         changeStatusEpic(epic);
     }
 
     public void deleteSubTask(int id) {
         Epic epic = epics.get(subTasks.get(id).getEpicId());
-        epic.getIdSubTask().remove((Integer) id);
-        subTasks.remove(id);
+        epic.deleteSubTaskId(id);
+        subTasks.remove((Integer) id);
         changeStatusEpic(epic);
     }
 
