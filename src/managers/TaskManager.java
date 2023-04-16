@@ -1,16 +1,18 @@
 package managers;
 
 import tasks.Epic;
+import tasks.Status;
 import tasks.SubTask;
 import tasks.Task;
-import tasks.TaskStatus;
+
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public class TaskManager {
-    private HashMap<Integer, Task> tasks = new HashMap<>();
-    private HashMap<Integer, SubTask> subTasks = new HashMap<>();
-    private HashMap<Integer, Epic> epics = new HashMap<>();
+    private final HashMap<Integer, Task> tasks = new HashMap<>();
+    private final HashMap<Integer, SubTask> subTasks = new HashMap<>();
+    private final HashMap<Integer, Epic> epics = new HashMap<>();
     private int id;
 
     public void addTask(Task task) {
@@ -60,31 +62,33 @@ public class TaskManager {
         epics.clear();
     }
 
-    public void changeStatusEpic(Epic epic) {
-        boolean allDone = true;
-        boolean allNew = true;
-        if (epic.getIdSubTask().isEmpty()) {
-            epic.setStatus(TaskStatus.NEW);
-        } else {
-            for (Integer subTaskId : epic.getIdSubTask()) {
-                SubTask subTask = subTasks.get(subTaskId);
-                if (subTask.getStatus() == TaskStatus.IN_PROGRESS) {
-                    epic.setStatus(TaskStatus.IN_PROGRESS);
-                    return;
-                } else if (subTask.getStatus() == TaskStatus.DONE) {
-                    allNew = false;
-                } else {
-                    allDone = false;
-                }
-            }
-            if (allDone && epic.getStatus() != TaskStatus.DONE) {
-                epic.setStatus(TaskStatus.DONE);
-            } else if (allNew && epic.getStatus() != TaskStatus.NEW) {
-                epic.setStatus(TaskStatus.NEW);
-            } else if (epic.getStatus() != TaskStatus.IN_PROGRESS) {
-                epic.setStatus(TaskStatus.IN_PROGRESS);
-            }
+    private void changeStatusEpic(Epic epic) {
+        List<Integer> subs = epic.getIdSubTask();
+        if (subs.isEmpty()) {
+            epic.setStatus(Status.NEW);
+            return;
         }
+        Status status = null;
+        for (int id : subs) {
+            final SubTask subtask = subTasks.get(id);
+            if (status == null) {
+                status = subtask.getStatus();
+                continue;
+            }
+            if (status == subtask.getStatus()
+                    && status != Status.IN_PROGRESS) {
+                continue;
+            }
+            epic.setStatus(Status.IN_PROGRESS);
+            return;
+        }
+        epic.setStatus(status);
+    }
+
+    public void updateEpic(Epic epic) {
+        epic.setEpicSubtasks(epics.get(epic.getId()).getIdSubTask());
+        epics.put(epic.getId(), epic);
+        changeStatusEpic(epic);
     }
 
     public ArrayList<Epic> getAllEpic() {
@@ -105,14 +109,9 @@ public class TaskManager {
 
     public void updateSubTask(SubTask subTask) {
         Epic epic = epics.get(subTask.getEpicId());
-        //Заметил, что при обновлении подзадачи, расширяется коллекция в Epic, после чего некорректно отрабатывает метод getSubTask
-        for (int i = 0; i < epic.getIdSubTask().size(); i++) {
-            Integer epicSubTaskId = epic.getIdSubTask().get(i);
-            if (epicSubTaskId == subTask.getId()) {
-                epic.deleteSubTaskId(epicSubTaskId);
-            }
+        if (!epic.getIdSubTask().contains((Integer) subTask.getId())) {
+            epic.addSubTaskId(subTask.getId());
         }
-        epic.addSubTaskId(subTask.getId());
         subTasks.put(subTask.getId(), subTask);
         changeStatusEpic(epic);
     }
