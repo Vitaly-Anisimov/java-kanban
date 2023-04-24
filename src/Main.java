@@ -1,3 +1,6 @@
+import managers.InMemoryHistoryManager;
+import managers.InMemoryTaskManager;
+import managers.Managers;
 import managers.TaskManager;
 import tasks.Epic;
 import tasks.Status;
@@ -10,7 +13,7 @@ public class Main {
 
     public static void main(String[] args) {
         SubTask subTask;
-        TaskManager taskManager = new TaskManager();
+        TaskManager taskManager = Managers.getDefault();
         Task task = new Task("Первая задача", "Просто задача", Status.DONE);
         Epic epic = new Epic("Утренние дела", "Дела которые нужно делать утром");
         taskManager.addEpic(epic);
@@ -18,22 +21,28 @@ public class Main {
         taskManager.addSubTask(subTask);
         subTask = new SubTask(3, "Встать с кровати", "Второе действие", Status.NEW, epic.getId());
         taskManager.addSubTask(subTask);
-        subTask = new SubTask(4, "Пойти умыться", "Третье действие", Status.DONE, epic.getId());
+        subTask = new SubTask(4, "Пойти умыться", "Третье действие", Status.NEW, epic.getId());
         taskManager.addSubTask(subTask);
-        SubTask subTask4 = new SubTask(2, "ОДИН", "Первое действие", Status.DONE, epic.getId());
-        taskManager.updateSubTask(subTask4);
-        SubTask subTask5 = new SubTask(3, "ДВА", "Второе действие", Status.NEW, epic.getId());
-        taskManager.updateSubTask(subTask5);
-        taskManager.deleteSubTask(4);
+        subTask = new SubTask(5, "Заварить кофе", "Четвертое действие", Status.NEW, epic.getId());
+        taskManager.addSubTask(subTask);
+        subTask = new SubTask(6, "Пожарить яичницу", "Пятое действие", Status.NEW, epic.getId());
+        taskManager.addSubTask(subTask);
+        subTask = new SubTask(7, "Позавтракать", "Шестое действие", Status.NEW, epic.getId());
+        taskManager.addSubTask(subTask);
+        subTask = new SubTask(8, "Покурить", "Седьмое действие", Status.NEW, epic.getId());
+        taskManager.addSubTask(subTask);
 
-        ArrayList<Epic> epics = taskManager.getAllEpic();
-        for (int i = 0; i < epics.size(); i++) {
-            System.out.println(epics.get(i).toString());
-        }
-
-        ArrayList<SubTask> subTasks = taskManager.getAllSubTask();
-        for (int i = 0; i < subTasks.size(); i++) {
-            System.out.println(subTasks.get(i).toString());
-        }
+        subTask = taskManager.getSubTask(1);
+        subTask = taskManager.getSubTask(2);
+        subTask = taskManager.getSubTask(3);
+        subTask = taskManager.getSubTask(4);
+        subTask = taskManager.getSubTask(5);
+        subTask = taskManager.getSubTask(6);
+        subTask = taskManager.getSubTask(7);
+        subTask = taskManager.getSubTask(8);
+        subTask = taskManager.getSubTask(7);
+        subTask = taskManager.getSubTask(6);
+        subTask = taskManager.getSubTask(5);
+        subTask = taskManager.getSubTask(4);
     }
 }
