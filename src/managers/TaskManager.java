@@ -14,7 +14,7 @@ public interface TaskManager {
 
     void updateTask(Task task);
 
-    public ArrayList<Task> getAllTask();
+    ArrayList<Task> getAllTask();
 
     void addEpic(Epic epic);
 
@@ -30,7 +30,7 @@ public interface TaskManager {
 
     void addSubTask(SubTask subTask);
 
-    public SubTask getSubTask(int id);
+    SubTask getSubTask(int id);
 
     void updateSubTask(SubTask subTask);
 
