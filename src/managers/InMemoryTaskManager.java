@@ -156,4 +156,9 @@ public class InMemoryTaskManager implements TaskManager {
     public ArrayList<SubTask> getAllSubTask() {
         return new ArrayList<>(subTasks.values());
     }
+
+    @Override
+    public List<Task> getHistory(){
+        return historyManager.getHistory();
+    }
 }

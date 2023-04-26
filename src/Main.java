@@ -44,5 +44,10 @@ public class Main {
         subTask = taskManager.getSubTask(6);
         subTask = taskManager.getSubTask(5);
         subTask = taskManager.getSubTask(4);
+
+        for (Task task1 : taskManager.getHistory()) {
+            System.out.println(task1.toString());
+        }
+
     }
 }

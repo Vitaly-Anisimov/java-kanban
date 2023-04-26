@@ -2,6 +2,7 @@ package managers;
 import tasks.*;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public interface TaskManager {
     void addTask(Task task);
@@ -40,4 +41,5 @@ public interface TaskManager {
 
     ArrayList<SubTask> getAllSubTask();
 
+    List<Task> getHistory();
 }
