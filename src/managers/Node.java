@@ -2,7 +2,7 @@ package managers;
 
 import tasks.Task;
 public class Node {
-    private Task task;
+    private final Task task;
     private Node next;
     private Node prev;
 
