@@ -32,8 +32,8 @@ public class Main {
         epic = taskManager.getEpic(epic2.getId());
         SubTask subTask = taskManager.getSubTask(subTask3.getId());
         subTask = taskManager.getSubTask(subTask2.getId());
-        taskManager.deleteSubTask(subTask3.getId());
         subTask = taskManager.getSubTask(subTask1.getId());
+        taskManager.clearSubTasks();
         taskManager.deleteEpic(epic1.getId());
         Task task = taskManager.getTask(task1.getId());
         task = taskManager.getTask(task1.getId());
