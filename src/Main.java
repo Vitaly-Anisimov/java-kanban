@@ -1,15 +1,13 @@
 import managers.InMemoryTaskManager;
 import managers.TaskManager;
-import tasks.Epic;
-import tasks.Status;
-import tasks.SubTask;
-import tasks.Task;
+import tasks.*;
+
 import java.util.List;
 
 public class Main {
 
-    public static void main(String[] args) {
-        InMemoryTaskManager taskManager = new InMemoryTaskManager();
+   /* public static void main(String[] args) {
+        /*InMemoryTaskManager taskManager = new InMemoryTaskManager();
         Task task1 = new Task("Действие первое", "Пойти в магазин", Status.NEW);
         Task task2 = new Task("Действие второе", "Купить иранскую колу", Status.IN_PROGRESS);
         Task task3 = new Task("Действие третье", "Купить шаурму", Status.DONE);
@@ -39,15 +37,6 @@ public class Main {
         task = taskManager.getTask(task2.getId());
         taskManager.clearEpics();
         printHistory(taskManager);
-    }
-
-    static void printHistory(TaskManager taskManager) {
-        List<Task> history = taskManager.getHistory();
-        System.out.println("Количество записей в истории = " + history.size());
-        for (Task task : history) {
-            System.out.println(task.toString());
-        }
-    }
-
+    }*/
 
 }

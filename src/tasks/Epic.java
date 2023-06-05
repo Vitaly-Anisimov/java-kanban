@@ -8,11 +8,15 @@ public class Epic extends Task {
 
     public Epic(String name, String description) {
         super(name, description, Status.NEW);
+        super.setTaskType(TaskType.EPIC);
+
         epicSubTask = new ArrayList<>();
     }
 
-    public Epic(int id, String name, String description) {
-        super(id, name, description, Status.NEW);
+    public Epic(int id, String name, String description, Status status) {
+        super(id, name, description, status);
+        super.setTaskType(TaskType.EPIC);
+
         epicSubTask = new ArrayList<>();
     }
 
@@ -34,12 +38,10 @@ public class Epic extends Task {
 
     @Override
     public String toString() {
-        return "Epic{" +
-                "id=" + getId() +
-                ", epicSubTask=" + epicSubTask +
-                ", name='" + getName() + '\'' +
-                ", description='" + getDescription() + '\'' +
-                ", status='" + getStatus() + '\'' +
-                '}';
+        return getId() + "," +
+                TaskType.EPIC + "," +
+                getName() + "," +
+                getStatus() + "," +
+                getDescription();
     }
 }
