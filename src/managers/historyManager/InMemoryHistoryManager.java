@@ -1,5 +1,7 @@
-package managers;
+package managers.historyManager;
 
+import managers.historyManager.HistoryManager;
+import managers.historyManager.Node;
 import tasks.Task;
 import java.util.ArrayList;
 import java.util.HashMap;

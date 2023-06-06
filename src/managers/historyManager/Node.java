@@ -1,4 +1,4 @@
-package managers;
+package managers.historyManager;
 
 import tasks.Task;
 public class Node {

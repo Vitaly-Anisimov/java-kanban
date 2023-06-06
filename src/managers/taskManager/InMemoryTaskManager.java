@@ -1,5 +1,6 @@
-package managers;
+package managers.taskManager;
 
+import managers.historyManager.HistoryManager;
 import tasks.Epic;
 import tasks.Status;
 import tasks.SubTask;
@@ -99,7 +100,7 @@ public class InMemoryTaskManager implements TaskManager {
         clearSubTasks();
     }
 
-    private void changeStatusEpic(Epic epic) {
+    protected void changeStatusEpic(Epic epic) {
         List<Integer> subs = epic.getIdSubTask();
 
         if (subs.isEmpty()) {

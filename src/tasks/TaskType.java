@@ -11,7 +11,7 @@ public enum TaskType {
         this.taskChoose = taskChoose;
     }
 
-    public static TaskType valueOfString(final String value) {
+    public static TaskType valueOfString(String value) {
         for (TaskType taskType : values()) {
             if (taskType.taskChoose.equals(value.toUpperCase())) {
                 return taskType;
