@@ -2,10 +2,16 @@ package managers.FileManager;
 
 import managers.historyManager.HistoryManager;
 import tasks.*;
+
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
 public class CSVTaskFormat {
+    public static final DateTimeFormatter PATTERN_DATE_TIME = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
+
     public static String historyToString(HistoryManager historyManager) {
         StringBuilder stringBuilder = new StringBuilder();
 
@@ -35,7 +41,9 @@ public class CSVTaskFormat {
                 return new Task(Integer.parseInt(lineValues[0])
                         , lineValues[2]
                         , lineValues[4]
-                        , status);
+                        , status
+                        , LocalDateTime.parse(lineValues[5], PATTERN_DATE_TIME)
+                        , Duration.ofMinutes(Long.parseLong(lineValues[6])));
             case EPIC:
                 return new Epic(Integer.parseInt(lineValues[0])
                         , lineValues[2]
@@ -45,7 +53,9 @@ public class CSVTaskFormat {
                         , lineValues[2]
                         , lineValues[4]
                         , status
-                        , Integer.parseInt(lineValues[5]));
+                        , Integer.parseInt(lineValues[5])
+                        , LocalDateTime.parse(lineValues[6], PATTERN_DATE_TIME)
+                        , Duration.ofMinutes(Long.parseLong(lineValues[7])));
             default:
                 return null;
         }

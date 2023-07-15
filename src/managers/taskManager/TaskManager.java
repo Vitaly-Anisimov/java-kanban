@@ -1,7 +1,9 @@
 package managers.taskManager;
+import managers.historyManager.HistoryManager;
 import tasks.*;
 
 import java.util.List;
+import java.util.Set;
 
 public interface TaskManager {
     void addTask(Task task);
@@ -41,4 +43,8 @@ public interface TaskManager {
     List<SubTask> getAllSubTask();
 
     List<Task> getHistory();
+
+    Set<Task> getPrioritatedTasks();
+
+    HistoryManager getHistoryManager();
 }

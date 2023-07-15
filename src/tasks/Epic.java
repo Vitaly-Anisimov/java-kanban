@@ -1,21 +1,27 @@
 package tasks;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class Epic extends Task {
     private List<Integer> epicSubTask;
+    private LocalDateTime endTime;
 
     public Epic(String name, String description) {
-        super(name, description, Status.NEW);
+        super(name, description, Status.NEW, LocalDateTime.MIN, Duration.ZERO);
 
         epicSubTask = new ArrayList<>();
+        endTime = LocalDateTime.MIN;
     }
 
     public Epic(int id, String name, String description) {
-        super(id, name, description, Status.NEW);
+        super(id, name, description, Status.NEW, LocalDateTime.MIN, Duration.ZERO);
 
         epicSubTask = new ArrayList<>();
+        endTime = LocalDateTime.MIN;
     }
 
     public List<Integer> getIdSubTask() {
@@ -34,6 +40,15 @@ public class Epic extends Task {
         epicSubTask.remove(id);
     }
 
+    public void setEndTime(LocalDateTime endTime) {
+        this.endTime = endTime;
+    }
+
+    @Override
+    public LocalDateTime getEndTime() {
+        return endTime;
+    }
+
     @Override
     public String toString() {
         return getId() + "," +
@@ -41,5 +56,22 @@ public class Epic extends Task {
                 getName() + "," +
                 getStatus() + "," +
                 getDescription();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Epic epic = (Epic) o;
+        return Objects.equals(epic, this);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+
+        result = 31 * result + epicSubTask.hashCode();
+        return result;
     }
 }

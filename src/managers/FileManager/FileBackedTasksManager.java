@@ -12,7 +12,7 @@ import exceptions.*;
 
 public class FileBackedTasksManager extends InMemoryTaskManager {
     public static final String DIRECTORY = "src/savedTasks/";
-    public static final String HEAD_FILE = "id,type,name,status,description,epic";
+    private final String HEAD_FILE = "id,type,name,status,description,epic";
     private final File file;
 
     public FileBackedTasksManager(File file) {
@@ -20,7 +20,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         this.file = file;
     }
 
-    private void load() {
+    public void load() {
         try {
             final List<String> allLinesFile = Files.readAllLines(file.toPath());
 
@@ -67,7 +67,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         }
     }
 
-    private void save() {
+    public void save() {
         try (BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(file))) {
             bufferedWriter.write(HEAD_FILE + "\n");
 
@@ -191,7 +191,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         save();
     }
 
-    public static void main(String[] args) {
+    /*public static void main(String[] args) {
         File saveFile = new File(DIRECTORY + "SaveFile.csv");
         FileBackedTasksManager fbManagerSave = new FileBackedTasksManager(saveFile);
 
@@ -241,5 +241,5 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         for (Task task : fbManagerLoad.getHistory()) {
             System.out.println(task.toString());
         }
-    }
+    }*/
 }
