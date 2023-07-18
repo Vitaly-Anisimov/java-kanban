@@ -1,7 +1,7 @@
 public class Main {
 
-   /* public static void main(String[] args) {
-        /*InMemoryTaskManager taskManager = new InMemoryTaskManager();
+    /*public static void main(String[] args) {
+        InMemoryTaskManager taskManager = Managers.getDefault();
         Task task1 = new Task("Действие первое", "Пойти в магазин", Status.NEW);
         Task task2 = new Task("Действие второе", "Купить иранскую колу", Status.IN_PROGRESS);
         Task task3 = new Task("Действие третье", "Купить шаурму", Status.DONE);

@@ -1,7 +1,7 @@
-package managers.historyManager;
+package managers.history;
 
-import managers.taskManager.Managers;
-import managers.taskManager.TaskManager;
+import managers.mem.Managers;
+import managers.mem.TaskManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import tasks.*;
@@ -64,39 +64,33 @@ class InMemoryHistoryManagerTest {
 
     @Test
     public void testDeleteFromTopHistory() {
-        HistoryManager historyManager = taskManager.getHistoryManager();
-
         taskManager.getSubTask(subTask1.getId());
         taskManager.getTask(task1.getId());
         taskManager.getTask(task2.getId());
         taskManager.getEpic(epic1.getId());
-        historyManager.remove(subTask1.getId());
+        taskManager.deleteSubTask(subTask1.getId());
         assertFalse(taskManager.getHistory().isEmpty());
         assertEquals(taskManager.getHistory().get(0), task1);
     }
 
     @Test
     public void testDeleteFromMidHistory() {
-        HistoryManager historyManager = taskManager.getHistoryManager();
-
         taskManager.getSubTask(subTask1.getId());
         taskManager.getTask(task1.getId());
         taskManager.getTask(task2.getId());
         taskManager.getEpic(epic1.getId());
-        historyManager.remove(task2.getId());
+        taskManager.deleteTask(task2.getId());
         assertFalse(taskManager.getHistory().isEmpty());
         assertEquals(taskManager.getHistory().get(2), epic1);
     }
 
     @Test
     public void testDeleteFromBotHistory() {
-        HistoryManager historyManager = taskManager.getHistoryManager();
-
         taskManager.getSubTask(subTask1.getId());
         taskManager.getTask(task1.getId());
         taskManager.getTask(task2.getId());
         taskManager.getEpic(epic1.getId());
-        historyManager.remove(epic1.getId());
+        taskManager.deleteEpic(epic1.getId());
         assertFalse(taskManager.getHistory().isEmpty());
         assertFalse(taskManager.getHistory().contains(epic1));
     }

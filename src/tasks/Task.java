@@ -1,6 +1,6 @@
 package tasks;
 
-import managers.FileManager.CSVTaskFormat;
+import managers.file.CSVTaskFormat;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -13,6 +13,7 @@ public class Task {
     private Status status;
     private LocalDateTime startTime;
     private Duration duration;
+    private TaskType taskType;
 
     public Task(String name, String description, Status status, LocalDateTime startTime, Duration duration) {
         this.name = name;
@@ -20,6 +21,7 @@ public class Task {
         this.status = status;
         this.startTime = startTime;
         this.duration = duration;
+        this.taskType = TaskType.TASK;
     }
 
     public Task(int id, String name, String description, Status status, LocalDateTime startTime, Duration duration) {
@@ -29,6 +31,7 @@ public class Task {
         this.id = id;
         this.startTime = startTime;
         this.duration = duration;
+        this.taskType = TaskType.TASK;
     }
 
     public void setStartTime(LocalDateTime startTime) {
@@ -67,6 +70,10 @@ public class Task {
         return status;
     }
 
+    public TaskType getTaskType() {
+        return taskType;
+    }
+
     public void setId(int id) {
         this.id = id;
     }
@@ -83,15 +90,8 @@ public class Task {
         this.status = status;
     }
 
-    @Override
-    public String toString() {
-        return getId() + "," +
-                TaskType.TASK + "," +
-                getName() + "," +
-                getStatus() + "," +
-                getDescription() + "," +
-                getStartTime().format(CSVTaskFormat.PATTERN_DATE_TIME) + "," +
-                getDuration().toMinutes() + ",";
+    public void setTaskType(TaskType taskType) {
+        this.taskType = taskType;
     }
 
     @Override

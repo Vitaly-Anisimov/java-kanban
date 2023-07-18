@@ -1,7 +1,5 @@
-package managers.historyManager;
+package managers.history;
 
-import managers.historyManager.HistoryManager;
-import managers.historyManager.Node;
 import tasks.Task;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -26,6 +24,10 @@ public class InMemoryHistoryManager implements HistoryManager {
     }
 
     private void removeNode(Node delNode) {
+        if (delNode == null) {
+            return;
+        }
+
         final Node nextNode = delNode.getNext();
         final Node prevNode = delNode.getPrev();
 
@@ -55,13 +57,11 @@ public class InMemoryHistoryManager implements HistoryManager {
 
     @Override
     public void add(Task task) {
-        if (task != null) {
-            if (taskHistory.containsKey(task.getId())) {
-                removeNode(taskHistory.get(task.getId()));
-                taskHistory.remove(task.getId());
-            }
-            taskHistory.put(task.getId(), linkLast(task));
-        }
+        Node foundedNode = taskHistory.get(task.getId());
+
+        removeNode(foundedNode);
+        taskHistory.remove(task.getId());
+        taskHistory.put(task.getId(), linkLast(task));
     }
 
     @Override
@@ -71,10 +71,45 @@ public class InMemoryHistoryManager implements HistoryManager {
 
     @Override
     public void remove(int id) {
-        if (taskHistory.containsKey(id)) {
-            removeNode(taskHistory.get(id));
-            taskHistory.remove(id);
+        Node foundedNode = taskHistory.get(id);
+
+        if (foundedNode == null) {
+            return;
         }
+
+        removeNode(foundedNode);
+        taskHistory.remove(id);
     }
 
+    private static class Node {
+        private final Task task;
+        private Node next;
+        private Node prev;
+
+        protected Node(Task task, Node next, Node prev) {
+            this.task = task;
+            this.next = next;
+            this.prev = prev;
+        }
+
+        protected Task getTask() {
+            return task;
+        }
+
+        protected Node getNext() {
+            return next;
+        }
+
+        protected Node getPrev() {
+            return prev;
+        }
+
+        protected void setNext(Node next) {
+            this.next = next;
+        }
+
+        protected void setPrev(Node prev) {
+            this.prev = prev;
+        }
+    }
 }

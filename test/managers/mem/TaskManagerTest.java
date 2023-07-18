@@ -1,4 +1,4 @@
-package managers.taskManager;
+package managers.mem;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -60,9 +60,29 @@ abstract class TaskManagerTest <T extends TaskManager> {
         manager.addSubTask(subTask3);
     }
 
-    //Добавление задач
+    @Test
+    public void testUpdateTaskWithChanges() {
+        Task newTask1 = new Task("Действие первое", "Обновленная таска"
+                , Status.NEW, LocalDateTime.of(2011, 8, 5, 9, 10)
+                , Duration.ofMinutes(35));
 
-    //Получение задач по id
+        newTask1.setId(task1.getId());
+        manager.updateTask(newTask1);
+        Task taskFromManager = manager.getTask(newTask1.getId());
+        assertEquals(taskFromManager, newTask1);
+    }
+
+    @Test
+    public void testUpdateTaskWithoutChanges() {
+        Task newTask1 = new Task("Действие первое", "Пойти в магазин"
+                , Status.NEW, LocalDateTime.of(2010, 8, 5, 9, 10)
+                , Duration.ofMinutes(30));
+        newTask1.setId(task1.getId());
+        manager.updateTask(newTask1);
+        Task taskFromManager = manager.getTask(newTask1.getId());
+        assertEquals(taskFromManager, newTask1);
+    }
+
     @Test
     public void testGetTask() {
         assertEquals(manager.getTask(1), task1);
@@ -106,23 +126,73 @@ abstract class TaskManagerTest <T extends TaskManager> {
     //Удаление задач по id
     @Test
     public void testDeleteTask() {
-        assertEquals(manager.getTask(2), task2);
-        manager.deleteTask(2);
-        assertNull(manager.getTask(2));
+        assertEquals(manager.getTask(task2.getId()), task2);
+        manager.deleteTask(task2.getId());
+        assertNull(manager.getTask(task2.getId()));
     }
 
     @Test
-    public void testDeleteEpic() {
-        assertEquals(manager.getEpic(4), epic2);
-        manager.deleteEpic(4);
-        assertNull(manager.getEpic(4));
+    public void testDeleteEpicWithoutSubtask() {
+        assertEquals(manager.getEpic(epic2.getId()), epic2);
+        manager.deleteEpic(epic2.getId());
+        assertNull(manager.getEpic(epic2.getId()));
+
+        Epic epicFromManager = null;
+        assertTrue(epic2.getIdSubTask().isEmpty());
+
+        for (SubTask subTask : manager.getAllSubTask()) {
+            epicFromManager = manager.getEpic(subTask.getId());
+        }
+        assertNull(epicFromManager);
+    }
+
+    @Test
+    public void testDeleteEpicWithtSubtask() {
+        assertEquals(manager.getEpic(epic1.getId()), epic1);
+        manager.deleteEpic(epic1.getId());
+        assertNull(manager.getEpic(epic1.getId()));
+
+        Epic epicFromManager = null;
+        assertFalse(epic1.getIdSubTask().isEmpty());
+
+        for (SubTask subTask : manager.getAllSubTask()) {
+            epicFromManager = manager.getEpic(subTask.getId());
+        }
+        assertNull(epicFromManager);
+
+        SubTask subTaskInManager = null;
+        for (Integer subTaskId : epic1.getIdSubTask()) {
+            subTaskInManager = manager.getSubTask(subTaskId);
+            break;
+        }
+        assertNull(subTaskInManager);
+    }
+
+    @Test
+    public void updateEpic() {
+        Epic newEpic = new Epic("Поиграть в шахматы", "Обновленный эпик");
+
+        newEpic.setId(epic2.getId());
+
+        SubTask newSubTask = new SubTask("Перевести игру в эндшпиль"
+                        , "Обновленная сабтаска"
+                        , Status.DONE
+                        , newEpic.getId()
+                        , LocalDateTime.of(2020, 10, 21, 12, 5)
+                        , Duration.ofMinutes(5));
+
+        manager.updateEpic(newEpic);
+        manager.addSubTask(newSubTask);
+
+        Epic epicFromManager = manager.getEpic(newEpic.getId());
+        assertEquals(epicFromManager, newEpic);
     }
 
     @Test
     public void testDeleteSubTask() {
-        assertEquals(manager.getSubTask(6), subTask2);
-        manager.deleteSubTask(6);
-        assertNull(manager.getSubTask(6));
+        assertEquals(manager.getSubTask(subTask2.getId()), subTask2);
+        manager.deleteSubTask(subTask2.getId());
+        assertNull(manager.getSubTask(subTask2.getId()));
     }
 
     //Удаление списка задач
@@ -145,6 +215,21 @@ abstract class TaskManagerTest <T extends TaskManager> {
         assertFalse(manager.getAllSubTask().isEmpty());
         manager.clearSubTasks();
         assertTrue(manager.getAllSubTask().isEmpty());
+    }
+
+    @Test
+    public void testUpdateSubTask() {
+        SubTask newSubTask1 = new SubTask("Сделать испанскую защиту"
+                , "Обновленная сабтаска"
+                , Status.NEW
+                , epic1.getId()
+                , LocalDateTime.of(2020, 10, 21, 12, 1)
+                , Duration.ofMinutes(3));
+
+        newSubTask1.setId(newSubTask1.getId());
+        manager.updateSubTask(newSubTask1);
+
+        assertEquals(manager.getSubTask(newSubTask1.getId()), newSubTask1);
     }
 
     //Проверка изменений статуса эпика

@@ -1,7 +1,7 @@
-package managers.taskManager;
+package managers.mem;
 
-import managers.historyManager.HistoryManager;
-import managers.historyManager.InMemoryHistoryManager;
+import managers.history.HistoryManager;
+import managers.history.InMemoryHistoryManager;
 
 public class Managers {
     public static TaskManager getDefault() {
