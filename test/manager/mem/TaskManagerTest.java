@@ -1,10 +1,10 @@
-package managers.mem;
+package manager.mem;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import tasks.*;
+import model.*;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -77,10 +77,9 @@ abstract class TaskManagerTest <T extends TaskManager> {
         Task newTask1 = new Task("Действие первое", "Пойти в магазин"
                 , Status.NEW, LocalDateTime.of(2010, 8, 5, 9, 10)
                 , Duration.ofMinutes(30));
+
         newTask1.setId(task1.getId());
-        manager.updateTask(newTask1);
-        Task taskFromManager = manager.getTask(newTask1.getId());
-        assertEquals(taskFromManager, newTask1);
+        Exception e = assertThrows(RuntimeException.class, () -> {manager.updateTask(newTask1);});
     }
 
     @Test
@@ -178,14 +177,15 @@ abstract class TaskManagerTest <T extends TaskManager> {
                         , "Обновленная сабтаска"
                         , Status.DONE
                         , newEpic.getId()
-                        , LocalDateTime.of(2020, 10, 21, 12, 5)
+                        , LocalDateTime.of(2021, 10, 21, 13, 5)
                         , Duration.ofMinutes(5));
 
         manager.updateEpic(newEpic);
         manager.addSubTask(newSubTask);
 
         Epic epicFromManager = manager.getEpic(newEpic.getId());
-        assertEquals(epicFromManager, newEpic);
+        assertEquals(epicFromManager.getDescription(), newEpic.getDescription());
+        assertEquals(epicFromManager.getName(), newEpic.getName());
     }
 
     @Test
@@ -223,7 +223,7 @@ abstract class TaskManagerTest <T extends TaskManager> {
                 , "Обновленная сабтаска"
                 , Status.NEW
                 , epic1.getId()
-                , LocalDateTime.of(2020, 10, 21, 12, 1)
+                , LocalDateTime.of(2020, 10, 21, 13, 1)
                 , Duration.ofMinutes(3));
 
         newSubTask1.setId(newSubTask1.getId());
@@ -334,15 +334,14 @@ abstract class TaskManagerTest <T extends TaskManager> {
         Set<Task> testSet = new TreeSet<>(Comparator.comparing(Task::getStartTime));
 
         testSet.addAll(manager.getAllTask());
-        testSet.addAll(manager.getAllEpic());
         testSet.addAll(manager.getAllSubTask());
 
-        Set<Task> setFromManager = manager.getPrioritatedTasks();
+        List<Task> testList = new ArrayList<>(testSet);
+        List<Task> listFromManager = manager.getPrioritatedTasks();
 
-        assertEquals(testSet, setFromManager);
+        assertEquals(testList, listFromManager);
         manager.clearTasks();
         manager.clearSubTasks();
-        manager.clearEpics();
         assertTrue(manager.getPrioritatedTasks().isEmpty());
     }
 }

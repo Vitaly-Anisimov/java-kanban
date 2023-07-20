@@ -1,4 +1,4 @@
-package managers.mem;
+package manager.mem;
 
 class InMemoryTaskManagerTest extends TaskManagerTest {
     TaskManager manager = Managers.getDefault();

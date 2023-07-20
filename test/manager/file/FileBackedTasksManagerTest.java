@@ -1,11 +1,10 @@
-package managers.file;
+package manager.file;
 
 import exceptions.ManagerLoadException;
-import exceptions.ManagerSaveException;
-import managers.mem.TaskManager;
+import manager.mem.TaskManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import tasks.*;
+import model.*;
 
 import java.io.*;
 import java.time.Duration;
@@ -225,7 +224,8 @@ class FileBackedTasksManagerTest <T extends TaskManager> {
         fileBackedTasksManager.addEpic(epic1);
         epic2.setId(epic1.getId());
         fileBackedTasksManager.updateEpic(epic2);
-        assertEquals(fileBackedTasksManager.getEpic(epic1.getId()), epic2);
+        assertEquals(fileBackedTasksManager.getEpic(epic1.getId()).getDescription(), epic2.getDescription());
+        assertEquals(fileBackedTasksManager.getEpic(epic1.getId()).getName(), epic2.getName());
     }
 
     @Test

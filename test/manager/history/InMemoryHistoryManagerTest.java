@@ -1,10 +1,10 @@
-package managers.history;
+package manager.history;
 
-import managers.mem.Managers;
-import managers.mem.TaskManager;
+import manager.mem.Managers;
+import manager.mem.TaskManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import tasks.*;
+import model.*;
 
 import java.time.Duration;
 import java.time.LocalDateTime;

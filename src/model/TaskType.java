@@ -1,4 +1,4 @@
-package tasks;
+package model;
 
 public enum TaskType {
     TASK("TASK"),

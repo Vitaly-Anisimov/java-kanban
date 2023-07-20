@@ -1,4 +1,4 @@
-package tasks;
+package model;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -23,13 +23,12 @@ public class Epic extends Task {
             , String description
             , Status status
             , LocalDateTime startTime
-            , Duration duration
-            , LocalDateTime endTime) {
+            , Duration duration) {
         super(id, name, description, status, startTime, duration);
         setTaskType(TaskType.EPIC);
 
         epicSubTask = new ArrayList<>();
-        this.endTime = endTime;
+        this.endTime = LocalDateTime.MIN.plusYears(1);
     }
 
     public List<Integer> getIdSubTask() {

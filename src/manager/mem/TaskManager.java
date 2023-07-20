@@ -1,9 +1,7 @@
-package managers.mem;
-import managers.history.HistoryManager;
-import tasks.*;
+package manager.mem;
+import model.*;
 
 import java.util.List;
-import java.util.Set;
 
 public interface TaskManager {
     void addTask(Task task);
@@ -44,5 +42,5 @@ public interface TaskManager {
 
     List<Task> getHistory();
 
-    Set<Task> getPrioritatedTasks();
+    List<Task> getPrioritatedTasks();
 }

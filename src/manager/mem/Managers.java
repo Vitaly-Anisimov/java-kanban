@@ -1,10 +1,11 @@
-package managers.mem;
+package manager.mem;
 
-import managers.history.HistoryManager;
-import managers.history.InMemoryHistoryManager;
+import manager.history.HistoryManager;
+import manager.history.InMemoryHistoryManager;
 
 public class Managers {
     public static TaskManager getDefault() {
+        //Не понимаю для каких целей вернуть FileBackedManager
         return new InMemoryTaskManager();
     }
 

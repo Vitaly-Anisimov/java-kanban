@@ -1,10 +1,10 @@
-package managers.mem;
+package manager.mem;
 
-import managers.history.HistoryManager;
-import tasks.Epic;
-import tasks.Status;
-import tasks.SubTask;
-import tasks.Task;
+import manager.history.HistoryManager;
+import model.Epic;
+import model.Status;
+import model.SubTask;
+import model.Task;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -22,14 +22,15 @@ public class InMemoryTaskManager implements TaskManager {
     private void checkOverlapTimeTask(Task task) {
         for (Task prioritateTask : prioritatedTasks) {
             if ((task.getStartTime().isAfter(prioritateTask.getStartTime()) && task.getStartTime().isBefore(prioritateTask.getStartTime()))
-                    || (task.getEndTime().isAfter(prioritateTask.getStartTime()) && task.getEndTime().isBefore(prioritateTask.getEndTime()))) {
+                    || (task.getEndTime().isAfter(prioritateTask.getStartTime()) && task.getEndTime().isBefore(prioritateTask.getEndTime()))
+                    || (task.getStartTime().compareTo(prioritateTask.getStartTime()) == 0 && task.getEndTime().compareTo(prioritateTask.getEndTime()) == 0)) {
                 throw new RuntimeException("Произошло наложение задач по времени!");
             }
         }
     }
 
-    public Set<Task> getPrioritatedTasks() {
-        return prioritatedTasks;
+    public List<Task> getPrioritatedTasks() {
+        return new ArrayList<>(prioritatedTasks);
     }
 
     @Override
@@ -83,7 +84,7 @@ public class InMemoryTaskManager implements TaskManager {
         return new ArrayList<>(tasks.values());
     }
 
-    private void updateEpicDuration(Epic epic) {
+    protected void updateEpicDuration(Epic epic) {
         if (epic.getIdSubTask().isEmpty()) {
             return;
         }
@@ -139,7 +140,6 @@ public class InMemoryTaskManager implements TaskManager {
     public void addEpic(Epic epic) {
         epic.setId(++id);
         epics.put(epic.getId(), epic);
-        prioritatedTasks.add(epic);
         updateEpicDuration(epic);
     }
 
@@ -174,14 +174,15 @@ public class InMemoryTaskManager implements TaskManager {
             prioritatedTasks.remove(epic);
         }
         epics.clear();
-        clearSubTasks();
+        clearSubTasksWithoutUpdateStatusEpic();
     }
 
     @Override
     public void updateEpic(Epic epic) {
-        epics.put(epic.getId(), epic);
-        prioritatedTasks.remove(epic);
-        prioritatedTasks.add(epic);
+        Epic oldEpic = epics.get(epic.getId());
+
+        oldEpic.setDescription(epic.getDescription());
+        oldEpic.setName(epic.getName());
     }
 
     @Override
@@ -244,12 +245,17 @@ public class InMemoryTaskManager implements TaskManager {
         }
     }
 
-    @Override
-    public void clearSubTasks() {
+    private void clearSubTasksWithoutUpdateStatusEpic() {
         for (SubTask subTask : subTasks.values()) {
             historyManager.remove(subTask.getId());
             prioritatedTasks.remove(subTask);
         }
+        subTasks.clear();
+    }
+
+    @Override
+    public void clearSubTasks() {
+        clearSubTasksWithoutUpdateStatusEpic();
         subTasks.clear();
         for (Epic epic : epics.values()) {
             epic.getIdSubTask().clear();

@@ -1,7 +1,7 @@
-package managers.file;
+package manager.file;
 
-import managers.history.HistoryManager;
-import tasks.*;
+import manager.history.HistoryManager;
+import model.*;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -11,7 +11,7 @@ import java.util.List;
 
 public class CSVTaskFormat {
     public static final DateTimeFormatter PATTERN_DATE_TIME = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
-    public static final String HEAD_FILE = "id,type,name,status,description,epic";
+    public static final String HEAD_FILE = "id,type,name,status,description,epic,starttime,duration";
 
     public static String historyToString(HistoryManager historyManager) {
         StringBuilder stringBuilder = new StringBuilder();
@@ -40,8 +40,8 @@ public class CSVTaskFormat {
         String name = lineValues[2];
         Status status = Status.valueOfString(lineValues[3]);
         String description = lineValues[4];
-        LocalDateTime startTime = LocalDateTime.parse(lineValues[5], PATTERN_DATE_TIME);
-        Duration duration = Duration.ofMinutes(Long.parseLong(lineValues[6]));
+        LocalDateTime startTime = LocalDateTime.parse(lineValues[6], PATTERN_DATE_TIME);
+        Duration duration = Duration.ofMinutes(Long.parseLong(lineValues[7]));
 
         switch (taskType) {
             case TASK:
@@ -57,8 +57,7 @@ public class CSVTaskFormat {
                         , description
                         , status
                         , startTime
-                        , duration
-                        , LocalDateTime.parse(lineValues[7], PATTERN_DATE_TIME));
+                        , duration);
             case SUBTASK:
                 return new SubTask(id
                         , name
@@ -66,7 +65,7 @@ public class CSVTaskFormat {
                         , status
                         , startTime
                         , duration
-                        , Integer.parseInt(lineValues[7]));
+                        , Integer.parseInt(lineValues[5]));
             default:
                 return null;
         }
@@ -74,23 +73,23 @@ public class CSVTaskFormat {
 
     public static String toString(final Task task) {
         final TaskType taskType = task.getTaskType();
+        String epicid = null;
 
-        StringBuilder taskToString = new StringBuilder(task.getId() + "," +
+        if (taskType == TaskType.SUBTASK) {
+            SubTask subTask = (SubTask) task;
+
+            epicid = String.valueOf(subTask.getEpicId());
+        }
+
+        String taskToString = task.getId() + "," +
                 taskType + "," +
                 task.getName() + "," +
                 task.getStatus() + "," +
                 task.getDescription() + "," +
+                epicid + "," +
                 task.getStartTime().format(PATTERN_DATE_TIME) + "," +
-                task.getDuration().toMinutes() + ",");
+                task.getDuration().toMinutes();
 
-        if (taskType == TaskType.EPIC) {
-            Epic epic = (Epic) task;
-            taskToString.append(epic.getEndTime().format(PATTERN_DATE_TIME));
-        } else if (taskType == TaskType.SUBTASK) {
-            SubTask subtask = (SubTask) task;
-            taskToString.append(subtask.getEpicId());
-        }
-
-        return taskToString.toString();
+        return taskToString;
     }
 }

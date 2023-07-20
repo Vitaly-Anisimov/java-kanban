@@ -1,7 +1,7 @@
-package managers.file;
+package manager.file;
 
-import managers.mem.InMemoryTaskManager;
-import tasks.*;
+import manager.mem.InMemoryTaskManager;
+import model.*;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -10,7 +10,6 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
 
 import exceptions.*;
 
@@ -55,7 +54,6 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
                         break;
                     case EPIC:
                         super.epics.put(task.getId(), (Epic) task);
-                        super.prioritatedTasks.add(task);
                         break;
                     case SUBTASK:
                         super.subTasks.put(task.getId(), (SubTask) task);
@@ -74,14 +72,17 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
                 }
 
                 subtaskEpic.addSubTaskId(subTask.getId());
-                super.updateEpicStatus(subtaskEpic);
+            }
+
+            for (Epic epic : super.getAllEpic()) {
+                super.updateEpicDuration(epic);
             }
 
             for (Integer taskIdHistory : history) {
                 super.historyManager.add(addedTask.get(taskIdHistory));
             }
         } catch (IOException e) {
-            throw new ManagerLoadException(e.getMessage(), e.getCause());
+            throw new ManagerLoadException(e.getCause());
         }
     }
 
@@ -100,7 +101,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
             }
             bufferedWriter.write("\n" + CSVTaskFormat.historyToString(super.historyManager));
         } catch (IOException e) {
-            throw new ManagerSaveException(e.getMessage(), e.getCause());
+            throw new ManagerSaveException(e.getCause());
         }
     }
 

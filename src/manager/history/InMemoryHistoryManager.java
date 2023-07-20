@@ -1,6 +1,6 @@
-package managers.history;
+package manager.history;
 
-import tasks.Task;
+import model.Task;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -57,10 +57,9 @@ public class InMemoryHistoryManager implements HistoryManager {
 
     @Override
     public void add(Task task) {
-        Node foundedNode = taskHistory.get(task.getId());
+        Node foundedNode = taskHistory.remove(task.getId());
 
         removeNode(foundedNode);
-        taskHistory.remove(task.getId());
         taskHistory.put(task.getId(), linkLast(task));
     }
 
@@ -71,7 +70,7 @@ public class InMemoryHistoryManager implements HistoryManager {
 
     @Override
     public void remove(int id) {
-        Node foundedNode = taskHistory.get(id);
+        Node foundedNode = taskHistory.remove(id);
 
         if (foundedNode == null) {
             return;
