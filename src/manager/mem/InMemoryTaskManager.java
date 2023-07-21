@@ -1,5 +1,6 @@
 package manager.mem;
 
+import exceptions.ManagerOverlapTimeException;
 import manager.history.HistoryManager;
 import model.Epic;
 import model.Status;
@@ -21,10 +22,9 @@ public class InMemoryTaskManager implements TaskManager {
 
     private void checkOverlapTimeTask(Task task) {
         for (Task prioritateTask : prioritatedTasks) {
-            if ((task.getStartTime().isAfter(prioritateTask.getStartTime()) && task.getStartTime().isBefore(prioritateTask.getStartTime()))
-                    || (task.getEndTime().isAfter(prioritateTask.getStartTime()) && task.getEndTime().isBefore(prioritateTask.getEndTime()))
-                    || (task.getStartTime().compareTo(prioritateTask.getStartTime()) == 0 && task.getEndTime().compareTo(prioritateTask.getEndTime()) == 0)) {
-                throw new RuntimeException("Произошло наложение задач по времени!");
+            if ((task.getStartTime().isAfter(prioritateTask.getStartTime()) && task.getStartTime().isBefore(prioritateTask.getEndTime()))
+                    || (task.getEndTime().isAfter(prioritateTask.getStartTime()) && task.getEndTime().isBefore(prioritateTask.getStartTime()))) {
+                throw new ManagerOverlapTimeException("Произошло наложение по времени между задачами id = " + task.getId() + " и id = " + prioritateTask.getId());
             }
         }
     }
@@ -73,7 +73,6 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void updateTask(Task task) {
-        checkOverlapTimeTask(task);
         tasks.put(task.getId(), task);
         prioritatedTasks.remove(task);
         prioritatedTasks.add(task);

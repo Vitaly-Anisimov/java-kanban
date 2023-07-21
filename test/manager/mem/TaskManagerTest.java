@@ -2,6 +2,7 @@ package manager.mem;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import exceptions.ManagerOverlapTimeException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import model.*;
@@ -79,7 +80,19 @@ abstract class TaskManagerTest <T extends TaskManager> {
                 , Duration.ofMinutes(30));
 
         newTask1.setId(task1.getId());
-        Exception e = assertThrows(RuntimeException.class, () -> {manager.updateTask(newTask1);});
+        manager.updateTask(newTask1);
+        assertEquals(newTask1, manager.getTask(newTask1.getId()));
+    }
+
+    @Test
+    public void testAddTaskWithOverlapTime() {
+        Task newTask = new Task("Действие первое", "Проверем пересечение"
+                , Status.NEW, LocalDateTime.of(2010, 8, 5, 9, 11)
+                , Duration.ofMinutes(30));
+        Exception e;
+
+        e = assertThrows(ManagerOverlapTimeException.class, () -> {manager.addTask(newTask);});
+
     }
 
     @Test

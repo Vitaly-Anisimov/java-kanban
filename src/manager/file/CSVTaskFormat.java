@@ -1,5 +1,6 @@
 package manager.file;
 
+import exceptions.CSVTaskFormatException;
 import manager.history.HistoryManager;
 import model.*;
 
@@ -67,7 +68,7 @@ public class CSVTaskFormat {
                         , duration
                         , Integer.parseInt(lineValues[5]));
             default:
-                return null;
+                throw new CSVTaskFormatException("Не распознан тип задачи id = " + id + " статус = " + taskType);
         }
     }
 

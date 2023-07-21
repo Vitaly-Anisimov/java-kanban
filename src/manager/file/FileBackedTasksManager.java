@@ -82,7 +82,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
                 super.historyManager.add(addedTask.get(taskIdHistory));
             }
         } catch (IOException e) {
-            throw new ManagerLoadException(e.getCause());
+            throw new ManagerLoadException(e.getMessage() + " " + file.getName(), e);
         }
     }
 
@@ -101,7 +101,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
             }
             bufferedWriter.write("\n" + CSVTaskFormat.historyToString(super.historyManager));
         } catch (IOException e) {
-            throw new ManagerSaveException(e.getCause());
+            throw new ManagerSaveException(e.getMessage() + " " + file.getName(), e);
         }
     }
 
