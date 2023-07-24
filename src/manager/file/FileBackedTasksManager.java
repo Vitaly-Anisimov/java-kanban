@@ -88,18 +88,24 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
 
     public void save() {
         try (BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(file))) {
-            bufferedWriter.write(CSVTaskFormat.HEAD_FILE + "\n");
+            bufferedWriter.write(CSVTaskFormat.HEAD_FILE);
+            bufferedWriter.newLine();
 
             for (Task task : getAllTask()) {
-                bufferedWriter.write(CSVTaskFormat.toString(task) + "\n");
+                bufferedWriter.write(CSVTaskFormat.toString(task));
+                bufferedWriter.newLine();
             }
             for (Epic epic : getAllEpic()) {
-                bufferedWriter.write(CSVTaskFormat.toString(epic) + "\n");
+                bufferedWriter.write(CSVTaskFormat.toString(epic));
+                bufferedWriter.newLine();
             }
             for (SubTask subTask : getAllSubTask()) {
-                bufferedWriter.write(CSVTaskFormat.toString(subTask) + "\n");
+                bufferedWriter.write(CSVTaskFormat.toString(subTask));
+                bufferedWriter.newLine();
             }
-            bufferedWriter.write("\n" + CSVTaskFormat.historyToString(super.historyManager));
+
+            bufferedWriter.newLine();
+            bufferedWriter.write(CSVTaskFormat.historyToString(super.historyManager));
         } catch (IOException e) {
             throw new ManagerSaveException(e.getMessage() + " " + file.getName(), e);
         }

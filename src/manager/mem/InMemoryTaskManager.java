@@ -19,11 +19,24 @@ public class InMemoryTaskManager implements TaskManager {
     private int id;
     protected final Set<Task> prioritatedTasks = new TreeSet<>(Comparator.comparing(Task::getStartTime));
 
-
     private void checkOverlapTimeTask(Task task) {
+        /*
+        Алгоритм:
+        Если
+            Дата начала задачи1 >= дата начала задачи2 и дата начала задачи1 <= дата окончания задачи2
+        Или
+            Дата окончания задачи 1 <= дата начала задачи2 и дата окончания задачи1 >= Дата окончания задачи2
+        Тогда
+            Генерим исключение
+        */
+
         for (Task prioritateTask : prioritatedTasks) {
             if ((task.getStartTime().isAfter(prioritateTask.getStartTime()) && task.getStartTime().isBefore(prioritateTask.getEndTime()))
-                    || (task.getEndTime().isAfter(prioritateTask.getStartTime()) && task.getEndTime().isBefore(prioritateTask.getStartTime()))) {
+                    | (task.getEndTime().isAfter(prioritateTask.getStartTime()) && task.getEndTime().isBefore(prioritateTask.getEndTime()))
+                    | (task.getStartTime().isEqual(prioritateTask.getStartTime()))
+                    | (task.getEndTime().isEqual(prioritateTask.getEndTime()))
+                    | (task.getStartTime().isEqual(prioritateTask.getEndTime()))
+                    | (task.getEndTime().isEqual(prioritateTask.getStartTime()))) {
                 throw new ManagerOverlapTimeException("Произошло наложение по времени между задачами id = " + task.getId() + " и id = " + prioritateTask.getId());
             }
         }
