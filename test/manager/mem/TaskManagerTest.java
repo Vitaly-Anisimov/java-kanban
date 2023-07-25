@@ -86,26 +86,22 @@ abstract class TaskManagerTest <T extends TaskManager> {
 
     @Test
     public void testAddTaskWithOverlapTime() {
-
-        /*new Task("Действие первое", "Пойти в магазин"
-                , Status.NEW, LocalDateTime.of(2010, 8, 5, 9, 10)
-                , Duration.ofMinutes(30));*/
-
         Task newTask1 = new Task("Действие первое", "Проверем пересечение где дата начала пересекается с периодом TASK1"
                 , Status.NEW, LocalDateTime.of(2010, 8, 5, 9, 11)
                 , Duration.ofMinutes(30));
         Task newTask2 = new Task("Действие первое", "Проверем пересечение где дата окончания пересекается с периодом TASK1"
                 , Status.NEW, LocalDateTime.of(2010, 8, 5, 9, 9)
                 , Duration.ofMinutes(30));
-        Task newTask3 = new Task("Действие первое", "Проверем пересечение где дата начала = дате окончания TASK1"
-                , Status.NEW, LocalDateTime.of(2010, 8, 5, 9, 40)
-                , Duration.ofMinutes(30));
-        Task newTask4 = new Task("Действие первое", "Проверем пересечение где дата окончания = дате начала TASK1"
-                , Status.NEW, LocalDateTime.of(2010, 8, 5, 8, 40)
-                , Duration.ofMinutes(30));
+        Task newTask3 = new Task("Действие первое", "Проверяем пересечение, где NewTask3 лежит в периоде TASK1"
+                , Status.NEW, LocalDateTime.of(2010, 8, 5, 9, 11)
+                , Duration.ofMinutes(5));
+        Task newTask4 = new Task("Действие первое", "Проверяем пересечение, где TASK1 лежит в периоде NewTask4"
+                , Status.NEW, LocalDateTime.of(2010, 8, 5, 8, 30)
+                , Duration.ofMinutes(60));
         Task newTask5 = new Task("Действие первое", "Проверем пересечение дубль периода TASK"
                 , Status.NEW, LocalDateTime.of(2010, 8, 5, 9, 10)
                 , Duration.ofMinutes(30));
+
         Exception e;
 
         e = assertThrows(ManagerOverlapTimeException.class, () -> {manager.addTask(newTask1);});
