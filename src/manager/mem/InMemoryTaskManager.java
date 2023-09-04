@@ -21,11 +21,8 @@ public class InMemoryTaskManager implements TaskManager {
 
     private void checkOverlapTimeTask(Task task) {
         for (Task prioritateTask : prioritatedTasks) {
-            if ((task.getStartTime().isAfter(prioritateTask.getStartTime()) && task.getStartTime().isBefore(prioritateTask.getEndTime()))
-                    || (task.getEndTime().isAfter(prioritateTask.getStartTime()) && task.getEndTime().isBefore(prioritateTask.getEndTime()))
-                    || (task.getStartTime().isBefore(prioritateTask.getStartTime()) && task.getEndTime().isAfter(prioritateTask.getStartTime()))
-                    || (task.getStartTime().isEqual(prioritateTask.getStartTime()))
-                    || (task.getEndTime().isEqual(prioritateTask.getEndTime()))) {
+            if (task.getEndTime().isAfter(prioritateTask.getStartTime())
+                && task.getStartTime().isBefore(prioritateTask.getEndTime())) {
                 throw new ManagerOverlapTimeException("Произошло наложение по времени между задачами id = " + task.getId() + " и id = " + prioritateTask.getId());
             }
         }
@@ -75,9 +72,9 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void updateTask(Task task) {
-        tasks.put(task.getId(), task);
         prioritatedTasks.remove(task);
-        prioritatedTasks.add(task);
+        tasks.put(task.getId(), task);
+        checkOverlapTimeTask(task);
     }
 
     @Override
