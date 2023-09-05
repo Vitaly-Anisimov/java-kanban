@@ -21,8 +21,9 @@ public class SubTask extends Task {
         this.epicId = epicId;
     }
 
-    public int getEpicId() {
-        return epicId;
+    @Override
+    public Integer getEpicId() {
+        return (Integer) epicId;
     }
 
     @Override
@@ -31,14 +32,15 @@ public class SubTask extends Task {
         if (o == null || getClass() != o.getClass()) return false;
 
         SubTask subTask = (SubTask) o;
-        return Objects.equals(subTask, this);
+        return super.equals(subTask)
+                    && getId() == subTask.getId();
     }
 
     @Override
     public int hashCode() {
         int result = super.hashCode();
 
-        result = 31 * result + getEpicId();
+        result = 31 * result + getEpicId().intValue();
         return result;
     }
 }

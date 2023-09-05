@@ -2,6 +2,7 @@ package model;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Objects;
@@ -62,7 +63,9 @@ public class Epic extends Task {
         if (o == null || getClass() != o.getClass()) return false;
 
         Epic epic = (Epic) o;
-        return Objects.equals(epic, this);
+        return super.equals(epic)
+                && this.getEndTime().equals(epic.getEndTime())
+                && this.getIdSubTask().equals(epic.getIdSubTask());
     }
 
     @Override

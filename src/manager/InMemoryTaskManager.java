@@ -1,4 +1,4 @@
-package manager.mem;
+package manager;
 
 import exceptions.ManagerOverlapTimeException;
 import manager.history.HistoryManager;
@@ -21,6 +21,9 @@ public class InMemoryTaskManager implements TaskManager {
 
     private void checkOverlapTimeTask(Task task) {
         for (Task prioritateTask : prioritatedTasks) {
+            if (task.equals(prioritateTask)) {
+                continue;
+            }
             if (task.getEndTime().isAfter(prioritateTask.getStartTime())
                 && task.getStartTime().isBefore(prioritateTask.getEndTime())) {
                 throw new ManagerOverlapTimeException("Произошло наложение по времени между задачами id = " + task.getId() + " и id = " + prioritateTask.getId());
@@ -58,6 +61,7 @@ public class InMemoryTaskManager implements TaskManager {
 
         if (task != null) {
             historyManager.remove(id);
+            prioritatedTasks.remove(task);
         }
     }
 
@@ -72,9 +76,10 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void updateTask(Task task) {
-        prioritatedTasks.remove(task);
         tasks.put(task.getId(), task);
         checkOverlapTimeTask(task);
+        prioritatedTasks.remove(task);
+        prioritatedTasks.add(task);
     }
 
     @Override
@@ -160,7 +165,6 @@ public class InMemoryTaskManager implements TaskManager {
             for (Integer subTask : epic.getIdSubTask()) {
                 deleteSubTask(subTask);
             }
-            prioritatedTasks.remove(epic);
             historyManager.remove(id);
         }
     }
@@ -169,7 +173,6 @@ public class InMemoryTaskManager implements TaskManager {
     public void clearEpics() {
         for (Epic epic : epics.values()) {
             historyManager.remove(epic.getId());
-            prioritatedTasks.remove(epic);
         }
         epics.clear();
         clearSubTasksWithoutUpdateStatusEpic();
@@ -192,7 +195,7 @@ public class InMemoryTaskManager implements TaskManager {
     public void addSubTask(SubTask subTask) {
         checkOverlapTimeTask(subTask);
 
-        Epic epic = epics.get(subTask.getEpicId());
+        Epic epic = epics.get(subTask.getEpicId().intValue());
 
         subTask.setId(++id);
         subTasks.put(subTask.getId(), subTask);
@@ -217,7 +220,7 @@ public class InMemoryTaskManager implements TaskManager {
     public void updateSubTask(SubTask subTask) {
         checkOverlapTimeTask(subTask);
 
-        Epic epic = epics.get(subTask.getEpicId());
+        Epic epic = epics.get(subTask.getEpicId().intValue());
 
         subTasks.put(subTask.getId(), subTask);
         updateEpicStatus(epic);

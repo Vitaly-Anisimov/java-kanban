@@ -1,6 +1,6 @@
 package manager.file;
 
-import manager.mem.InMemoryTaskManager;
+import manager.InMemoryTaskManager;
 import model.*;
 import java.io.BufferedWriter;
 import java.io.File;

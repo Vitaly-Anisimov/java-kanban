@@ -1,4 +1,4 @@
-package manager.mem;
+package manager;
 
 import manager.history.HistoryManager;
 import manager.history.InMemoryHistoryManager;

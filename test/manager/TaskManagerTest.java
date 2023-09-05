@@ -1,8 +1,9 @@
-package manager.mem;
+package manager;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 import exceptions.ManagerOverlapTimeException;
+import manager.TaskManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import model.*;
@@ -13,6 +14,7 @@ import java.util.*;
 abstract class TaskManagerTest <T extends TaskManager> {
     Task task1;
     Task task2;
+    Task task3;
     Epic epic1;
     Epic epic2;
     SubTask subTask1;
@@ -30,6 +32,10 @@ abstract class TaskManagerTest <T extends TaskManager> {
         task2 = new Task("Действие второе", "Купить иранскую колу"
                 , Status.IN_PROGRESS, LocalDateTime.of(2010, 8, 5, 10, 40)
                 , Duration.ofMinutes(5));
+        task3 = new Task("Действие третье", "тест"
+                , Status.IN_PROGRESS, LocalDateTime.of(2010, 8, 5, 10, 50)
+                , Duration.ofMinutes(10));
+
         epic1 = new Epic("Поиграть в шахматы", "Поставить мат Магнусуну");
         epic2 = new Epic("Разгадать смысл жизни", "Подумать зачем всё это надо");
 
@@ -71,6 +77,31 @@ abstract class TaskManagerTest <T extends TaskManager> {
         manager.updateTask(newTask1);
         Task taskFromManager = manager.getTask(newTask1.getId());
         assertEquals(taskFromManager, newTask1);
+        assertTrue(manager.getPrioritatedTasks().contains(newTask1));
+    }
+
+    @Test
+    public void testUpdateTaskWithOverlapTask() {
+        task1.setStartTime(LocalDateTime.of(2010, 8, 5, 10, 40));
+        assertThrows(ManagerOverlapTimeException.class, () -> manager.updateTask(task1));
+    }
+
+    @Test
+    public void testUpdateTaskWithNotOverlapTask() {
+        task3.setStartTime(LocalDateTime.of(2010, 8, 5, 10, 55));
+        assertDoesNotThrow(() -> manager.updateTask(task2));
+    }
+
+    @Test
+    public void testUpdateTaskChangeDurationThrowsException() {
+        task1.setDuration(Duration.ofMinutes(120));
+        assertThrows(ManagerOverlapTimeException.class, () -> manager.updateTask(task1));
+    }
+
+    @Test
+    public void testUpdateTaskChangeDurationNotThrowsException() {
+        task3.setDuration(task3.getDuration().minus(Duration.ofMinutes(5)));
+        assertDoesNotThrow(() -> manager.updateTask(task3));
     }
 
     @Test
@@ -261,7 +292,18 @@ abstract class TaskManagerTest <T extends TaskManager> {
         assertEquals(manager.getSubTask(newSubTask1.getId()), newSubTask1);
     }
 
-    //Проверка изменений статуса эпика
+    @Test
+    public void testUpdateSubtaskWithChangeStartTimeThrowsException() {
+        subTask1.setStartTime(LocalDateTime.of(2020, 10, 21, 12, 6));
+        assertThrows(ManagerOverlapTimeException.class, () -> manager.updateSubTask(subTask1));
+    }
+
+    @Test
+    public void testUpdateSubtaskWithChangeStartTimeNotThrowsException() {
+        subTask1.setStartTime(LocalDateTime.of(2020, 10, 21, 12, 40));
+        assertDoesNotThrow(() -> manager.updateSubTask(subTask1));
+    }
+
     @Test
     public void testChangeEpicStatusNew() {
         Epic testEpic = new Epic("Тест эпика", "Проверка статуса NEW");

@@ -74,20 +74,13 @@ public class CSVTaskFormat {
 
     public static String toString(final Task task) {
         final TaskType taskType = task.getTaskType();
-        String epicid = null;
-
-        if (taskType == TaskType.SUBTASK) {
-            SubTask subTask = (SubTask) task;
-
-            epicid = String.valueOf(subTask.getEpicId());
-        }
 
         String taskToString = task.getId() + "," +
                 taskType + "," +
                 task.getName() + "," +
                 task.getStatus() + "," +
                 task.getDescription() + "," +
-                epicid + "," +
+                task.getEpicId() + "," +
                 task.getStartTime().format(PATTERN_DATE_TIME) + "," +
                 task.getDuration().toMinutes();
 

@@ -56,6 +56,10 @@ public class Task {
         return id;
     }
 
+    public Integer getEpicId() {
+        return null;
+    }
+
     public String getName() {
         return name;
     }
@@ -98,8 +102,15 @@ public class Task {
         if (o == null || getClass() != o.getClass()) return false;
 
         Task task = (Task) o;
-        return Objects.equals(task, this);
+        return getId() == task.getId()
+                && this.getName().equals(task.getName())
+                && this.getDescription().equals(task.getDescription())
+                && this.getStatus().equals(task.getStatus())
+                && this.getStartTime().equals(task.getStartTime())
+                && this.getDuration().equals(task.getDuration())
+                && this.getTaskType().equals(task.getTaskType());
     }
+
 
     @Override
     public int hashCode() {
