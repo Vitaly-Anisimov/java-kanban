@@ -1,6 +1,6 @@
 package manager.file;
 
-import exceptions.CSVTaskFormatException;
+import exception.CSVTaskFormatException;
 import manager.history.HistoryManager;
 import model.*;
 
@@ -18,7 +18,7 @@ public class CSVTaskFormat {
         StringBuilder stringBuilder = new StringBuilder();
 
         for (Task task : historyManager.getHistory()) {
-            stringBuilder.append(task.getId() + ",");
+            stringBuilder.append(task.getId()).append(",");
         }
         return stringBuilder.toString();
     }
@@ -75,7 +75,7 @@ public class CSVTaskFormat {
     public static String toString(final Task task) {
         final TaskType taskType = task.getTaskType();
 
-        String taskToString = task.getId() + "," +
+        return task.getId() + "," +
                 taskType + "," +
                 task.getName() + "," +
                 task.getStatus() + "," +
@@ -83,7 +83,5 @@ public class CSVTaskFormat {
                 task.getEpicId() + "," +
                 task.getStartTime().format(PATTERN_DATE_TIME) + "," +
                 task.getDuration().toMinutes();
-
-        return taskToString;
     }
 }

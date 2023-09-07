@@ -1,7 +1,7 @@
 package manager.history;
 
-import manager.Managers;
-import manager.TaskManager;
+import manager.mem.Managers;
+import manager.mem.TaskManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import model.*;

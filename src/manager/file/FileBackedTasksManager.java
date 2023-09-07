@@ -1,6 +1,6 @@
 package manager.file;
 
-import manager.InMemoryTaskManager;
+import manager.mem.InMemoryTaskManager;
 import model.*;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import exceptions.*;
+import exception.*;
 
 public class FileBackedTasksManager extends InMemoryTaskManager {
     private final File file;
@@ -19,6 +19,10 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
     public FileBackedTasksManager(File file) {
         super();
         this.file = file;
+    }
+
+    public static FileBackedTasksManager fileBackedTasksManagerWithNewFile() {
+        return new FileBackedTasksManager(new File("test\\savedTasks\\SaveFile.csv"));
     }
 
     public void load() {

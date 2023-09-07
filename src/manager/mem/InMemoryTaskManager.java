@@ -1,6 +1,6 @@
-package manager;
+package manager.mem;
 
-import exceptions.ManagerOverlapTimeException;
+import exception.ManagerOverlapTimeException;
 import manager.history.HistoryManager;
 import model.Epic;
 import model.Status;
@@ -21,7 +21,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     private void checkOverlapTimeTask(Task task) {
         for (Task prioritateTask : prioritatedTasks) {
-            if (task.equals(prioritateTask)) {
+            if (task.getId() == prioritateTask.getId()) {
                 continue;
             }
             if (task.getEndTime().isAfter(prioritateTask.getStartTime())
@@ -76,9 +76,14 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void updateTask(Task task) {
-        tasks.put(task.getId(), task);
+        Task oldTask = tasks.get(task.getId());
+
+        if (oldTask == null) {
+            return;
+        }
         checkOverlapTimeTask(task);
-        prioritatedTasks.remove(task);
+        prioritatedTasks.remove(oldTask);
+        tasks.put(task.getId(), task);
         prioritatedTasks.add(task);
     }
 
@@ -218,14 +223,17 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void updateSubTask(SubTask subTask) {
+        SubTask oldSubTask = subTasks.get(subTask.getId());
+
+        if (oldSubTask == null) {
+            return;
+        }
         checkOverlapTimeTask(subTask);
+        prioritatedTasks.remove(subTask);
+        subTasks.put(subTask.getId(), subTask);
+        prioritatedTasks.add(subTask);
 
         Epic epic = epics.get(subTask.getEpicId().intValue());
-
-        subTasks.put(subTask.getId(), subTask);
-        updateEpicStatus(epic);
-        prioritatedTasks.remove(subTask);
-        prioritatedTasks.add(subTask);
         updateEpicDuration(epic);
     }
 

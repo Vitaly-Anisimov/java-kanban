@@ -1,4 +1,4 @@
-package manager;
+package manager.mem;
 import model.*;
 
 import java.util.List;

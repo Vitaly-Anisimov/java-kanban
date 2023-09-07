@@ -1,12 +1,13 @@
-package manager;
+package manager.mem;
 
 import manager.history.HistoryManager;
 import manager.history.InMemoryHistoryManager;
 
+import static manager.file.FileBackedTasksManager.fileBackedTasksManagerWithNewFile;
+
 public class Managers {
     public static TaskManager getDefault() {
-        //Не понимаю для каких целей вернуть FileBackedManager
-        return new InMemoryTaskManager();
+        return fileBackedTasksManagerWithNewFile();
     }
 
     public static HistoryManager getDefaultHistory() {

@@ -1,9 +1,8 @@
-package manager;
+package manager.mem;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import exceptions.ManagerOverlapTimeException;
-import manager.TaskManager;
+import exception.ManagerOverlapTimeException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import model.*;
@@ -11,7 +10,8 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.*;
 
-abstract class TaskManagerTest <T extends TaskManager> {
+public abstract class TaskManagerTest <T extends TaskManager> {
+    public T manager;
     Task task1;
     Task task2;
     Task task3;
@@ -20,8 +20,8 @@ abstract class TaskManagerTest <T extends TaskManager> {
     SubTask subTask1;
     SubTask subTask2;
     SubTask subTask3;
-    public T manager;
-    abstract T createTaskManager();
+
+    public abstract T createTaskManager();
 
     @BeforeEach
     public void createTestTasks() {
@@ -133,13 +133,11 @@ abstract class TaskManagerTest <T extends TaskManager> {
                 , Status.NEW, LocalDateTime.of(2010, 8, 5, 9, 10)
                 , Duration.ofMinutes(30));
 
-        Exception e;
-
-        e = assertThrows(ManagerOverlapTimeException.class, () -> {manager.addTask(newTask1);});
-        e = assertThrows(ManagerOverlapTimeException.class, () -> {manager.addTask(newTask2);});
-        e = assertThrows(ManagerOverlapTimeException.class, () -> {manager.addTask(newTask3);});
-        e = assertThrows(ManagerOverlapTimeException.class, () -> {manager.addTask(newTask4);});
-        e = assertThrows(ManagerOverlapTimeException.class, () -> {manager.addTask(newTask5);});
+        assertThrows(ManagerOverlapTimeException.class, () -> manager.addTask(newTask1));
+        assertThrows(ManagerOverlapTimeException.class, () -> manager.addTask(newTask2));
+        assertThrows(ManagerOverlapTimeException.class, () -> manager.addTask(newTask3));
+        assertThrows(ManagerOverlapTimeException.class, () -> manager.addTask(newTask4));
+        assertThrows(ManagerOverlapTimeException.class, () -> manager.addTask(newTask5));
     }
 
     @Test
@@ -286,9 +284,8 @@ abstract class TaskManagerTest <T extends TaskManager> {
                 , LocalDateTime.of(2020, 10, 21, 13, 1)
                 , Duration.ofMinutes(3));
 
-        newSubTask1.setId(newSubTask1.getId());
+        newSubTask1.setId(subTask1.getId());
         manager.updateSubTask(newSubTask1);
-
         assertEquals(manager.getSubTask(newSubTask1.getId()), newSubTask1);
     }
 
