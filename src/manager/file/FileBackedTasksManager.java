@@ -21,11 +21,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         this.file = file;
     }
 
-    public static FileBackedTasksManager fileBackedTasksManagerWithNewFile() {
-        return new FileBackedTasksManager(new File("test\\savedTasks\\SaveFile.csv"));
-    }
-
-    public void load() {
+    private void load() {
         try {
             final List<String> allLinesFile = Files.readAllLines(file.toPath());
             List<Integer> history = new ArrayList<>();
@@ -90,7 +86,14 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         }
     }
 
-    public void save() {
+    public static FileBackedTasksManager loadFromFile(File file) {
+        FileBackedTasksManager fileBackedTasksManager = new FileBackedTasksManager(file);
+
+        fileBackedTasksManager.load();
+        return fileBackedTasksManager;
+    }
+
+    private void save() {
         try (BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(file))) {
             bufferedWriter.write(CSVTaskFormat.HEAD_FILE);
             bufferedWriter.newLine();

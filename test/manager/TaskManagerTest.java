@@ -1,4 +1,4 @@
-package manager.mem;
+package manager;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -8,18 +8,19 @@ import org.junit.jupiter.api.Test;
 import model.*;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 public abstract class TaskManagerTest <T extends TaskManager> {
     public T manager;
-    Task task1;
-    Task task2;
-    Task task3;
-    Epic epic1;
-    Epic epic2;
-    SubTask subTask1;
-    SubTask subTask2;
-    SubTask subTask3;
+    protected Task task1;
+    protected Task task2;
+    protected Task task3;
+    protected Epic epic1;
+    protected Epic epic2;
+    protected SubTask subTask1;
+    protected SubTask subTask2;
+    protected SubTask subTask3;
 
     public abstract T createTaskManager();
 
@@ -62,6 +63,7 @@ public abstract class TaskManagerTest <T extends TaskManager> {
                 , epic1.getId()
                 , LocalDateTime.of(2020, 10, 21, 12, 20)
                 , Duration.ofMinutes(20));
+
         manager.addSubTask(subTask1);
         manager.addSubTask(subTask2);
         manager.addSubTask(subTask3);
@@ -195,7 +197,7 @@ public abstract class TaskManagerTest <T extends TaskManager> {
         assertNull(manager.getEpic(epic2.getId()));
 
         Epic epicFromManager = null;
-        assertTrue(epic2.getIdSubTask().isEmpty());
+        assertTrue(epic2.getIdSubTasks().isEmpty());
 
         for (SubTask subTask : manager.getAllSubTask()) {
             epicFromManager = manager.getEpic(subTask.getId());
@@ -210,7 +212,7 @@ public abstract class TaskManagerTest <T extends TaskManager> {
         assertNull(manager.getEpic(epic1.getId()));
 
         Epic epicFromManager = null;
-        assertFalse(epic1.getIdSubTask().isEmpty());
+        assertFalse(epic1.getIdSubTasks().isEmpty());
 
         for (SubTask subTask : manager.getAllSubTask()) {
             epicFromManager = manager.getEpic(subTask.getId());
@@ -218,7 +220,7 @@ public abstract class TaskManagerTest <T extends TaskManager> {
         assertNull(epicFromManager);
 
         SubTask subTaskInManager = null;
-        for (Integer subTaskId : epic1.getIdSubTask()) {
+        for (Integer subTaskId : epic1.getIdSubTasks()) {
             subTaskInManager = manager.getSubTask(subTaskId);
             break;
         }
@@ -411,5 +413,20 @@ public abstract class TaskManagerTest <T extends TaskManager> {
         manager.clearTasks();
         manager.clearSubTasks();
         assertTrue(manager.getPrioritatedTasks().isEmpty());
+    }
+    @Test
+    public void testEpicDuration() {
+        subTask1.setStartTime(LocalDateTime.of(2010, 10, 21, 14, 0));
+        subTask1.setDuration(Duration.ofMinutes(20));
+        subTask2.setStartTime(LocalDateTime.of(2010, 10, 21, 15, 0));
+        subTask2.setDuration(Duration.ofMinutes(20));
+        manager.deleteSubTask(subTask3.getId());
+        subTask1.getEpicId();
+        manager.updateSubTask(subTask1);
+        manager.updateSubTask(subTask2);
+
+        assertEquals(Duration.between(subTask1.getStartTime(), subTask2.getEndTime()), epic1.getDuration());
+        assertEquals(subTask1.getStartTime(), epic1.getStartTime());
+        assertEquals(subTask2.getEndTime(), epic1.getEndTime());
     }
 }

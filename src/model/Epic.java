@@ -2,21 +2,17 @@ package model;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.Arrays;
 import java.util.List;
 import java.util.ArrayList;
-import java.util.Objects;
 
 public class Epic extends Task {
-    private List<Integer> epicSubTask;
-    private LocalDateTime endTime;
+    private List<Integer> epicSubTasks;
 
     public Epic(String name, String description) {
         super(name, description, Status.NEW, LocalDateTime.MAX, Duration.ZERO);
         setTaskType(TaskType.EPIC);
 
-        epicSubTask = new ArrayList<>();
-        endTime = LocalDateTime.MIN.plusYears(1);
+        epicSubTasks = new ArrayList<>();
     }
 
     public Epic(int id
@@ -28,34 +24,21 @@ public class Epic extends Task {
         super(id, name, description, status, startTime, duration);
         setTaskType(TaskType.EPIC);
 
-        epicSubTask = new ArrayList<>();
-        this.endTime = LocalDateTime.MIN.plusYears(1);
+        epicSubTasks = new ArrayList<>();
     }
 
-    public List<Integer> getIdSubTask() {
-        return epicSubTask;
-    }
-
-    public void setEpicSubtasks(List<Integer> epicSubTask) {
-        this.epicSubTask = epicSubTask;
+    public List<Integer> getIdSubTasks() {
+        return epicSubTasks;
     }
 
     public void addSubTaskId(int id) {
-        epicSubTask.add(id);
+        epicSubTasks.add(id);
     }
 
     public void deleteSubTaskId(Integer id) {
-        epicSubTask.remove(id);
+        epicSubTasks.remove(id);
     }
 
-    public void setEndTime(LocalDateTime endTime) {
-        this.endTime = endTime;
-    }
-
-    @Override
-    public LocalDateTime getEndTime() {
-        return endTime;
-    }
 
     @Override
     public boolean equals(Object o) {
@@ -65,14 +48,6 @@ public class Epic extends Task {
         Epic epic = (Epic) o;
         return super.equals(epic)
                 && this.getEndTime().equals(epic.getEndTime())
-                && this.getIdSubTask().equals(epic.getIdSubTask());
-    }
-
-    @Override
-    public int hashCode() {
-        int result = super.hashCode();
-
-        result = 31 * result + epicSubTask.hashCode();
-        return result;
+                && this.getIdSubTasks().equals(epic.getIdSubTasks());
     }
 }

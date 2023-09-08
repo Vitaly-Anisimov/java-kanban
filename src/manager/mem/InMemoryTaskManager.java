@@ -1,6 +1,8 @@
 package manager.mem;
 
 import exception.ManagerOverlapTimeException;
+import manager.Managers;
+import manager.TaskManager;
 import manager.history.HistoryManager;
 import model.Epic;
 import model.Status;
@@ -93,34 +95,32 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     protected void updateEpicDuration(Epic epic) {
-        if (epic.getIdSubTask().isEmpty()) {
+        if (epic.getIdSubTasks().isEmpty()) {
             return;
         }
 
-        SubTask firstSubtask = subTasks.get(epic.getIdSubTask().get(0));
-        LocalDateTime epicStartTime = firstSubtask.getStartTime();
-        LocalDateTime epicEndTime = firstSubtask.getEndTime();
-        Duration epicDuration = Duration.ZERO;
+        LocalDateTime tmpStartDate = LocalDateTime.MAX;
+        LocalDateTime tmpEndDate = LocalDateTime.MIN;
 
-        for (Integer subTaskid : epic.getIdSubTask()) {
+        for (Integer subTaskid : epic.getIdSubTasks()) {
             SubTask subTask = subTasks.get(subTaskid);
 
-            epicDuration = epicDuration.plus(subTask.getDuration());
-
-            if (subTask.getStartTime().isBefore(epicStartTime)) {
-                epic.setStartTime(subTask.getStartTime());
+            if (subTask.getStartTime().isBefore(tmpStartDate)) {
+                tmpStartDate = subTask.getStartTime();
             }
 
-            if (subTask.getEndTime().isAfter(epicEndTime)) {
-                epic.setEndTime(subTask.getEndTime());
+            if (subTask.getEndTime().isAfter(tmpEndDate)) {
+                tmpEndDate = subTask.getEndTime();
+
             }
         }
 
-        epic.setDuration(epicDuration);
+        epic.setStartTime(tmpStartDate);
+        epic.setDuration(Duration.between(tmpStartDate, tmpEndDate));
     }
 
     protected void updateEpicStatus(Epic epic) {
-        List<Integer> subs = epic.getIdSubTask();
+        List<Integer> subs = epic.getIdSubTasks();
 
         if (subs.isEmpty()) {
             epic.setStatus(Status.NEW);
@@ -167,7 +167,7 @@ public class InMemoryTaskManager implements TaskManager {
         Epic epic = epics.remove(id);
 
         if (epic != null) {
-            for (Integer subTask : epic.getIdSubTask()) {
+            for (Integer subTask : epic.getIdSubTasks()) {
                 deleteSubTask(subTask);
             }
             historyManager.remove(id);
@@ -268,7 +268,7 @@ public class InMemoryTaskManager implements TaskManager {
         clearSubTasksWithoutUpdateStatusEpic();
         subTasks.clear();
         for (Epic epic : epics.values()) {
-            epic.getIdSubTask().clear();
+            epic.getIdSubTasks().clear();
             updateEpicStatus(epic);
         }
     }
