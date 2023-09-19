@@ -14,7 +14,7 @@ import java.util.List;
 import exception.*;
 
 public class FileBackedTasksManager extends InMemoryTaskManager {
-    private final File file;
+    protected final File file;
 
     public FileBackedTasksManager(File file) {
         super();
@@ -81,6 +81,18 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
             for (Integer taskIdHistory : history) {
                 super.historyManager.add(addedTask.get(taskIdHistory));
             }
+
+            int maxId = 0;
+
+            for (Task task : addedTask.values()) {
+                if (maxId < task.getId()) {
+                    maxId = task.getId();
+                }
+            }
+
+            super.id = maxId;
+
+
         } catch (IOException e) {
             throw new ManagerLoadException(e.getMessage() + " " + file.getName(), e);
         }

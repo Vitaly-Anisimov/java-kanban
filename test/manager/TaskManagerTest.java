@@ -3,12 +3,15 @@ package manager;
 import static org.junit.jupiter.api.Assertions.*;
 
 import exception.ManagerOverlapTimeException;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import model.*;
+import server.KVServer;
+
+import java.io.IOException;
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 public abstract class TaskManagerTest <T extends TaskManager> {
@@ -24,7 +27,6 @@ public abstract class TaskManagerTest <T extends TaskManager> {
 
     public abstract T createTaskManager();
 
-    @BeforeEach
     public void createTestTasks() {
         manager = createTaskManager();
         task1 = new Task("Действие первое", "Пойти в магазин"

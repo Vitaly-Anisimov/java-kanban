@@ -1,14 +1,13 @@
 package manager;
 
-import manager.TaskManager;
-import manager.file.FileBackedTasksManager;
+import manager.client.HttpTaskManager;
 import manager.history.HistoryManager;
 import manager.history.InMemoryHistoryManager;
-import java.io.File;
+import server.KVServer;
 
 public class Managers {
     public static TaskManager getDefault() {
-        return new FileBackedTasksManager(new File("test\\savedTasks\\SaveFile.csv"));
+        return new HttpTaskManager("http://localhost:" + KVServer.PORT, "testkey");
     }
 
     public static HistoryManager getDefaultHistory() {

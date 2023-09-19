@@ -1,17 +1,28 @@
 import manager.Managers;
-import manager.TaskManager;
-import model.Epic;
-import model.Status;
-import model.SubTask;
-import model.Task;
+import manager.client.HttpTaskManager;
+import server.HttpTaskServer;
+import server.KVServer;
 
-import java.time.Duration;
-import java.time.LocalDateTime;
+import java.io.IOException;
 
 public class Main {
 
-    public static void main(String[] args) {
-        TaskManager taskManager = Managers.getDefault();
+    public static void main(String[] args) throws IOException {
+        try { HttpTaskServer httpTaskServer = new HttpTaskServer();
+            httpTaskServer.start();
+            //httpTaskServer.stop(30);
+        } catch (IOException e) {
+            System.out.println("Ошибка : " + e.getMessage());
+        }
+
+        KVServer kvServer = new KVServer();
+        kvServer.start();
+
+        HttpTaskManager httpTaskManager = (HttpTaskManager) Managers.getDefault();
+        httpTaskManager.save();
+
+
+      /*  TaskManager taskManager = Managers.getDefault();
         LocalDateTime timeIsTime = LocalDateTime.MIN;
 
         Task task1 = new Task("Действие первое", "Пойти в магазин", Status.NEW, timeIsTime.plusDays(10), Duration.ofMinutes(10));
@@ -45,6 +56,6 @@ public class Main {
         task = taskManager.getTask(task1.getId());
         taskManager.deleteTask(task1.getId());
         task = taskManager.getTask(task2.getId());
-        taskManager.clearEpics();
+        taskManager.clearEpics();*/
     }
 }
