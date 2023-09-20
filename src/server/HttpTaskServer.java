@@ -3,18 +3,17 @@ package server;
 import com.google.gson.Gson;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
+import exception.HttpTaskServerNotFoundException;
+import exception.HttpTaskServerUnsupportMethodException;
 import manager.Managers;
 import manager.TaskManager;
 import manager.client.adapters.GsonFormatBuilder;
-import manager.file.CSVTaskFormat;
-import manager.file.FileBackedTasksManager;
 import model.Epic;
 import model.SubTask;
 import model.Task;
-import java.io.File;
+
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.net.StandardSocketOptions;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
@@ -70,256 +69,198 @@ public class HttpTaskServer {
         return result;
     }
 
-    private void handleForTask(HttpExchange exchange) throws IOException {
-        String requestMethod = exchange.getRequestMethod();
-        String paramQuery = exchange.getRequestURI().getQuery();
-
-        if (!(paramQuery == null)) {
-            paramQuery = paramQuery.replaceFirst("id=", "");
-        }
+    private void handleForTask(HttpExchange exchange, String requestMethod, String paramQuery, Integer idFromRequest) throws IOException, HttpTaskServerNotFoundException, HttpTaskServerUnsupportMethodException {
+        Task taskFromManager;
+        Task taskFromBody;
 
         switch (requestMethod) {
             case "GET":
                 if (paramQuery == null) {
-                    if (manager.getAllTask().isEmpty()) {
-                        sendText(exchange, "Tasks is empty", 404);
-                    } else {
-                        sendText(exchange, formatToGson(manager.getAllTask()), 200);
-                    }
+                    sendText(exchange, formatToGson(manager.getAllTask()), 200);
+                    return;
                 } else {
-                    Optional<Integer> parsedId = parseId(paramQuery);
+                    taskFromManager = manager.getTask(idFromRequest.intValue());
 
-                    if (parsedId.isEmpty()) {
-                        sendText(exchange, "Not correct query", 400);
+                    if (taskFromManager == null) {
+                        throw new HttpTaskServerNotFoundException("Not get task id = " + paramQuery);
                     } else {
-                        Task taskFromManager = manager.getTask(parsedId.get());
-
-                        if (taskFromManager == null) {
-                            sendText(exchange, "Not found task with id = " + parsedId.get(), 400);
-                        } else {
-                            sendText(exchange, formatToGson(taskFromManager), 200);
-                        }
+                        sendText(exchange, formatToGson(taskFromManager), 200);
                     }
                 }
                 break;
             case "POST":
                 String requestBody = readText(exchange);
-                if (requestBody.isBlank() || requestBody.isEmpty()) {
-                    sendText(exchange, "Empty body request", 400);
-                } else {
-                    Task taskFromBody = gson.fromJson(requestBody, Task.class);
-                    Task taskFromManager = manager.getTask(taskFromBody.getId());
 
-                    if (taskFromManager == null) {
-                        manager.addTask(taskFromBody);
-                        sendText(exchange, String.valueOf(taskFromBody.getId()), 200);
-                    } else {
-                        manager.updateTask(taskFromBody);
-                        sendText(exchange, String.valueOf(taskFromBody.getId()), 201);
-                    }
+                taskFromBody = gson.fromJson(requestBody, Task.class);
+                taskFromManager = manager.getTask(taskFromBody.getId());
+
+                if (taskFromManager == null) {
+                    manager.addTask(taskFromBody);
+                    sendText(exchange, formatToGson(taskFromBody), 200);
+                } else {
+                    manager.updateTask(taskFromBody);
+                    sendText(exchange, String.valueOf(taskFromBody.getId()), 201);
                 }
+
                 break;
             case "DELETE":
-                Optional<Integer> parsedId = parseId(paramQuery);
-
-                if (parsedId.isEmpty()) {
-                    sendText(exchange, "Not correct query", 400);
-                } else {
-                    Task taskFromManager = manager.getTask(parsedId.get());
-
-                    if (taskFromManager == null) {
-                        sendText(exchange, "Not found task with id = " + parsedId.get(), 400);
-                    } else {
-                        sendText(exchange, "Task was delete with id = " + taskFromManager.getId(), 202);
-                        manager.deleteTask(taskFromManager.getId());
-                    }
+                if (idFromRequest == null) {
+                    throw new HttpTaskServerNotFoundException("id for delete is null");
                 }
+
+                manager.deleteTask(idFromRequest);
+                sendText(exchange, formatToGson(idFromRequest), 202);
+
                 break;
             default:
-                sendText(exchange, "Unsupported method", 405);
+                throw new HttpTaskServerUnsupportMethodException("Unsupported method");
         }
     }
 
-    private void handleForSubtask(HttpExchange exchange) throws IOException {
-        String requestMethod = exchange.getRequestMethod();
-        String paramQuery = exchange.getRequestURI().getQuery();
-
-        if (!(paramQuery == null)) {
-            paramQuery = paramQuery.replaceFirst("id=", "");
-        }
+    private void handleForEpic(HttpExchange exchange, String requestMethod, String paramQuery, Integer idFromRequest) throws IOException, HttpTaskServerNotFoundException, HttpTaskServerUnsupportMethodException {
+        Epic epicFromManager;
+        Epic epicFromBody;
 
         switch (requestMethod) {
             case "GET":
                 if (paramQuery == null) {
-                    if (manager.getAllSubTask().isEmpty()) {
-                        sendText(exchange, "Subtasks is empty", 404);
-                    } else {
-                        sendText(exchange, formatToGson(manager.getAllSubTask()), 200);
-                    }
+                    sendText(exchange, formatToGson(manager.getAllEpic()), 200);
+                    return;
                 } else {
-                    Optional<Integer> parsedId = parseId(paramQuery);
+                    epicFromManager = manager.getEpic(idFromRequest.intValue());
 
-                    if (parsedId.isEmpty()) {
-                        sendText(exchange, "Not correct query", 400);
+                    if (epicFromManager == null) {
+                        throw new HttpTaskServerNotFoundException("Not get epic id = " + paramQuery);
                     } else {
-                        SubTask subTaskFromManager = manager.getSubTask(parsedId.get());
-
-                        if (subTaskFromManager == null) {
-                            sendText(exchange, "Not found subtask with id = " + parsedId.get(), 400);
-                        } else {
-                            sendText(exchange, formatToGson(subTaskFromManager), 200);
-                        }
+                        sendText(exchange, formatToGson(epicFromManager), 200);
                     }
                 }
                 break;
             case "POST":
                 String requestBody = readText(exchange);
-                if (requestBody.isBlank() || requestBody.isEmpty()) {
-                    sendText(exchange, "Empty body request", 400);
-                } else {
-                    SubTask subTaskFromBody = gson.fromJson(requestBody, SubTask.class);
-                    SubTask subTaskManager = manager.getSubTask(subTaskFromBody.getId());
 
-                    if (subTaskManager == null) {
-                        manager.addSubTask(subTaskFromBody);
-                        sendText(exchange, String.valueOf(subTaskFromBody.getId()), 200);
-                    } else {
-                        manager.addSubTask(subTaskFromBody);
-                        sendText(exchange, String.valueOf(subTaskFromBody.getId()), 201);
-                    }
+                epicFromBody = gson.fromJson(requestBody, Epic.class);
+                epicFromManager = manager.getEpic(epicFromBody.getId());
+
+                if (epicFromManager == null) {
+                    manager.addEpic(epicFromBody);
+                    sendText(exchange, formatToGson(epicFromBody), 200);
+                } else {
+                    manager.updateEpic(epicFromBody);
+                    sendText(exchange, formatToGson(epicFromBody), 201);
                 }
+
                 break;
             case "DELETE":
-                Optional<Integer> parsedId = parseId(paramQuery);
+                if (idFromRequest == null) {
+                    throw new HttpTaskServerNotFoundException("id for delete is null");
+                }
 
-                if (parsedId.isEmpty()) {
-                    sendText(exchange, "Not correct query", 400);
+                manager.deleteEpic(idFromRequest);
+                sendText(exchange, formatToGson(idFromRequest), 202);
+
+                break;
+            default:
+                throw new HttpTaskServerUnsupportMethodException("Unsupported method");
+        }
+    }
+
+    private void handleForSubTask(HttpExchange exchange, String requestMethod, String paramQuery, Integer idFromRequest) throws IOException, HttpTaskServerNotFoundException, HttpTaskServerUnsupportMethodException {
+        SubTask subTaskFromManager;
+        SubTask subTaskFromBody;
+
+        switch (requestMethod) {
+            case "GET":
+                if (paramQuery == null) {
+                    sendText(exchange, formatToGson(manager.getAllSubTask()), 200);
+                    return;
                 } else {
-                    SubTask subTaskFromManager = manager.getSubTask(parsedId.get());
+                    subTaskFromManager = manager.getSubTask(idFromRequest.intValue());
 
                     if (subTaskFromManager == null) {
-                        sendText(exchange, "Not found subtask with id = " + parsedId.get(), 400);
+                        throw new HttpTaskServerNotFoundException("Not get subTask id = " + paramQuery);
                     } else {
-                        manager.deleteSubTask(subTaskFromManager.getId());
-                        sendText(exchange, "Subtask was delete with id = " + subTaskFromManager.getId(), 202);
-                    }
-                }
-                break;
-            default:
-                sendText(exchange, "Unsupported method", 405);
-        }
-    }
-
-    private void handleForEpic(HttpExchange exchange) throws IOException {
-        String requestMethod = exchange.getRequestMethod();
-        String paramQuery = exchange.getRequestURI().getQuery();
-
-        if (!(paramQuery == null)) {
-            paramQuery = paramQuery.replaceFirst("id=", "");
-        }
-
-        switch (requestMethod) {
-            case "GET":
-                if (paramQuery == null) {
-                    if (manager.getAllEpic().isEmpty()) {
-                        sendText(exchange, "Epics is empty", 404);
-                    } else {
-                        sendText(exchange, formatToGson(manager.getAllEpic()), 200);
-                    }
-                } else {
-                    Optional<Integer> parsedId = parseId(paramQuery);
-
-                    if (parsedId.isEmpty()) {
-                        sendText(exchange, "Not correct query", 400);
-                    } else {
-                        Epic epicFromManager = manager.getEpic(parsedId.get());
-
-                        if (epicFromManager == null) {
-                            sendText(exchange, "Not found epic with id = " + parsedId.get(), 400);
-                        } else {
-                            sendText(exchange, formatToGson(epicFromManager), 200);
-                        }
+                        sendText(exchange, formatToGson(subTaskFromManager), 200);
                     }
                 }
                 break;
             case "POST":
                 String requestBody = readText(exchange);
-                if (requestBody.isBlank() || requestBody.isEmpty()) {
-                    sendText(exchange, "Empty body request", 400);
-                } else {
-                    Epic epicFromBody = gson.fromJson(requestBody, Epic.class);
-                    Epic epicFromManager = manager.getEpic(epicFromBody.getId());
 
-                    if (epicFromManager == null) {
-                        manager.addEpic(epicFromBody);
-                        sendText(exchange, String.valueOf(epicFromBody.getId()), 200);
-                    } else {
-                        manager.addEpic(epicFromBody);
-                        sendText(exchange, String.valueOf(epicFromBody.getId()), 201);
-                    }
+                subTaskFromBody = gson.fromJson(requestBody, SubTask.class);
+                subTaskFromManager = manager.getSubTask(subTaskFromBody.getId());
+
+                if (subTaskFromManager == null) {
+                    manager.addSubTask(subTaskFromBody);
+                    sendText(exchange, formatToGson(subTaskFromBody), 200);
+                } else {
+                    manager.updateSubTask(subTaskFromBody);
+                    sendText(exchange, String.valueOf(subTaskFromBody.getId()), 201);
                 }
+
                 break;
             case "DELETE":
-                Optional<Integer> parsedId = parseId(paramQuery);
+                subTaskFromManager = manager.getSubTask(idFromRequest);
 
-                if (parsedId.isEmpty()) {
-                    sendText(exchange, "Not correct query", 400);
-                } else {
-                    Epic epicFromManager = manager.getEpic(parsedId.get());
-
-                    if (epicFromManager == null) {
-                        sendText(exchange, "Not found epic with id = " + parsedId.get(), 400);
-                    } else {
-                        manager.deleteEpic(epicFromManager.getId());
-                        sendText(exchange, "Epic was delete with id = " + epicFromManager.getId(), 202);
-                    }
+                if (idFromRequest == null) {
+                    throw new HttpTaskServerNotFoundException("id for delete is null");
                 }
+
+                manager.deleteSubTask(idFromRequest);
+                sendText(exchange, formatToGson(idFromRequest), 202);
+
                 break;
             default:
-                sendText(exchange, "Unsupported method", 405);
+                throw new HttpTaskServerUnsupportMethodException("Unsupported method");
         }
     }
+
 
     private void handle(HttpExchange exchange) throws IOException {
         String path = exchange.getRequestURI().getPath().replaceFirst("/tasks/", "");
+        String paramQuery = exchange.getRequestURI().getQuery();
+        String requestMethod = exchange.getRequestMethod();
+        Integer idFromRequest = null;
 
-        switch (path) {
-            case "":
-                if (exchange.getRequestMethod().equals("GET")) {
-                    if (manager.getPrioritatedTasks().isEmpty()) {
-                        sendText(exchange, "PrioritatedTask is empty", 404);
-                    } else {
+
+        try {
+            if (!(paramQuery == null)) {
+                idFromRequest = Integer.parseInt(paramQuery.replaceFirst("id=", ""));
+
+            }
+
+            switch (path) {
+                case "":
+                    if (exchange.getRequestMethod().equals("GET")) {
                         sendText(exchange, formatToGson(manager.getPrioritatedTasks()), 200);
-                    }
-                } else {
-                    sendText(exchange, "Not support", 400);
-                }
-                break;
-            case "history/":
-                if (exchange.getRequestMethod().equals("GET")) {
-                    if (manager.getHistory().isEmpty()) {
-
-                        sendText(exchange, "History is empty", 404);
                     } else {
-                        sendText(exchange, formatToGson(manager.getHistory()), 200);
+                        throw new HttpTaskServerUnsupportMethodException("Not supported method");
                     }
-                } else {
-                    sendText(exchange, "Not support", 400);
-                }
-                break;
-            case "task/":
-                handleForTask(exchange);
-                break;
-            case "epic/":
-                handleForEpic(exchange);
-                break;
-            case "subtask/":
-                handleForSubtask(exchange);
-                break;
-            default:
-                sendText(exchange, "Not support", 400);
+                    break;
+                case "history/":
+                    if (exchange.getRequestMethod().equals("GET")) {
+                        sendText(exchange, formatToGson(manager.getHistory()), 200);
+                    } else {
+                        throw new HttpTaskServerUnsupportMethodException("Not supported method");
+                    }
+                    break;
+                case "task/":
+                    handleForTask(exchange, requestMethod, paramQuery, idFromRequest);
+                    break;
+                case "epic/":
+                    handleForEpic(exchange, requestMethod, paramQuery, idFromRequest);
+                    break;
+                case "subtask/":
+                    handleForSubTask(exchange, requestMethod, paramQuery, idFromRequest);
+                    break;
+                default:
+                    throw new HttpTaskServerUnsupportMethodException("Unsupported URL");
+            }
+        } catch (IOException | NumberFormatException | HttpTaskServerNotFoundException |
+                 HttpTaskServerUnsupportMethodException e) {
+            sendText(exchange, formatToGson(e.getMessage()), 404);
+        } finally {
+            exchange.close();
         }
-
-        exchange.close();
     }
 }

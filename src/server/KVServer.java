@@ -42,6 +42,8 @@ public class KVServer {
                     h.sendResponseHeaders(400, 0);
                     return;
                 }
+                System.out.println("Выгузка с сервера по ключу" + key);
+
                 sendText(h, data.get(key));
                 h.sendResponseHeaders(200, 0);
             } else {
@@ -76,6 +78,7 @@ public class KVServer {
                     h.sendResponseHeaders(400, 0);
                     return;
                 }
+
                 data.put(key, value);
                 System.out.println("Значение для ключа " + key + " успешно обновлено!");
                 h.sendResponseHeaders(200, 0);

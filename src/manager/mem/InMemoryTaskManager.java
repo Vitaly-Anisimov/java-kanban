@@ -95,15 +95,15 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     protected void updateEpicDuration(Epic epic) {
-        if (epic.getIdSubTasks().isEmpty()) {
-            return;
-        }
-
         LocalDateTime tmpStartDate = LocalDateTime.MAX;
         LocalDateTime tmpEndDate = LocalDateTime.MIN;
 
         for (Integer subTaskid : epic.getIdSubTasks()) {
             SubTask subTask = subTasks.get(subTaskid);
+
+            if (subTask == null) {
+                continue;
+            }
 
             if (subTask.getStartTime().isBefore(tmpStartDate)) {
                 tmpStartDate = subTask.getStartTime();
@@ -130,6 +130,11 @@ public class InMemoryTaskManager implements TaskManager {
 
         for (int id : subs) {
             final SubTask subtask = subTasks.get(id);
+
+            if (subtask == null) {
+                continue;
+            }
+
             if (status == null) {
                 status = subtask.getStatus();
                 continue;

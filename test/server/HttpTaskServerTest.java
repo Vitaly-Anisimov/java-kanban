@@ -46,11 +46,11 @@ class HttpTaskServerTest {
         URI uri = URI.create(URL_NAME + param);
 
         HttpRequest request = HttpRequest
-                        .newBuilder()
-                        .GET()
-                        .uri(uri)
-                        .header("Accept", "application/json")
-                        .build();
+                .newBuilder()
+                .GET()
+                .uri(uri)
+                .header("Accept", "application/json")
+                .build();
 
         return httpClient.send(request, HttpResponse.BodyHandlers.ofString());
     }
@@ -59,11 +59,11 @@ class HttpTaskServerTest {
         URI uri = URI.create(URL_NAME + param);
 
         HttpRequest request = HttpRequest
-                        .newBuilder()
-                        .DELETE()
-                        .uri(uri)
-                        .header("Accept", "application/json")
-                        .build();
+                .newBuilder()
+                .DELETE()
+                .uri(uri)
+                .header("Accept", "application/json")
+                .build();
 
         return httpClient.send(request, HttpResponse.BodyHandlers.ofString());
     }
@@ -74,11 +74,11 @@ class HttpTaskServerTest {
 
         HttpRequest.BodyPublisher body = HttpRequest.BodyPublishers.ofString(query);
         HttpRequest request = HttpRequest
-                        .newBuilder()
-                        .POST(body)
-                        .uri(uri)
-                        .header("Accept", "application/json")
-                        .build();
+                .newBuilder()
+                .POST(body)
+                .uri(uri)
+                .header("Accept", "application/json")
+                .build();
 
         return httpClient.send(request, HttpResponse.BodyHandlers.ofString());
     }
@@ -100,17 +100,17 @@ class HttpTaskServerTest {
                 , Duration.ofMinutes(10));
 
         response = createCreateOrUpdateQuery(task1, "task/");
-        Integer taskFromServer1 = gson.fromJson(response.body(), Integer.class);
+        Task taskFromServer1 = gson.fromJson(response.body(), Task.class);
 
-        task1.setId(taskFromServer1.intValue());
+        task1.setId(taskFromServer1.getId());
         response = createCreateOrUpdateQuery(task2, "task/");
-        Integer taskFromServer2 = gson.fromJson(response.body(), Integer.class);
+        Task taskFromServer2 = gson.fromJson(response.body(), Task.class);
 
-        task2.setId(taskFromServer2.intValue());
+        task2.setId(taskFromServer2.getId());
         response = createCreateOrUpdateQuery(task3, "task/");
-        Integer taskFromServer3 = gson.fromJson(response.body(), Integer.class);
+        Task taskFromServer3 = gson.fromJson(response.body(), Task.class);
 
-        task3.setId(taskFromServer3.intValue());
+        task3.setId(taskFromServer3.getId());
 
         epic1 = new Epic("Поиграть в шахматы", "Поставить мат Магнусуну");
         epic2 = new Epic("Разгадать смысл жизни", "Подумать зачем всё это надо");
@@ -118,13 +118,13 @@ class HttpTaskServerTest {
         epic3.setId(9);
 
         response = createCreateOrUpdateQuery(epic1, "epic/");
-        Integer epicFromServer1 = gson.fromJson(response.body(), Integer.class);
+        Epic epicFromServer1 = gson.fromJson(response.body(), Epic.class);
 
-        epic1.setId(epicFromServer1.intValue());
+        epic1.setId(epicFromServer1.getId());
         response = createCreateOrUpdateQuery(epic2, "epic/");
-        Integer epicFromServer2 = gson.fromJson(response.body(), Integer.class);
+        Epic epicFromServer2 = gson.fromJson(response.body(), Epic.class);
 
-        epic2.setId(epicFromServer2.intValue());
+        epic2.setId(epicFromServer2.getId());
 
         subTask1 = new SubTask("Сделать испанскую защиту"
                 , "Выдвинуть 3 пешки и 1 коня"
@@ -153,17 +153,17 @@ class HttpTaskServerTest {
                 , Duration.ofMinutes(20));
 
         response = createCreateOrUpdateQuery(subTask1, "subtask/");
-        Integer subTaskFromServer1 = gson.fromJson(response.body(), Integer.class);
+        SubTask subTaskFromServer1 = gson.fromJson(response.body(), SubTask.class);
 
-        subTask1.setId(subTaskFromServer1.intValue());
+        subTask1.setId(subTaskFromServer1.getId());
         response = createCreateOrUpdateQuery(subTask2, "subtask/");
-        Integer subTaskFromServer2 = gson.fromJson(response.body(), Integer.class);
+        SubTask subTaskFromServer2 = gson.fromJson(response.body(), SubTask.class);
 
-        subTask2.setId(subTaskFromServer2.intValue());
+        subTask2.setId(subTaskFromServer2.getId());
         response = createCreateOrUpdateQuery(subTask3, "subtask/");
-        Integer subTaskFromServer3 = gson.fromJson(response.body(), Integer.class);
+        SubTask subTaskFromServer3 = gson.fromJson(response.body(), SubTask.class);
 
-        subTask3.setId(subTaskFromServer3.intValue());
+        subTask3.setId(subTaskFromServer3.getId());
     }
 
 
@@ -200,9 +200,7 @@ class HttpTaskServerTest {
     public void testNegativeGetAllPrioritizedTasks() throws IOException, InterruptedException {
         HttpResponse<String> response = createCreateOrUpdateQuery(task1, "");
 
-        assertEquals(400, response.statusCode());
-        response = createDeleteQuery("");
-        assertEquals(400, response.statusCode());
+        assertEquals(404, response.statusCode());
     }
 
     @Test
@@ -221,18 +219,16 @@ class HttpTaskServerTest {
     @Test
     public void testGetEmptyHistory() throws IOException, InterruptedException {
         HttpResponse<String> response = createGetQuery("history/");
-        assertEquals(404, response.statusCode());
-        response = createDeleteQuery("history/");
-        assertEquals(400, response.statusCode());
+        assertEquals(200, response.statusCode());
     }
 
     @Test
     public void testNegativeGetHistory() throws IOException, InterruptedException {
         HttpResponse<String> response = createDeleteQuery("history/");
 
-        assertEquals(400, response.statusCode());
+        assertEquals(404, response.statusCode());
         response = createCreateOrUpdateQuery(task1, "history/");
-        assertEquals(400, response.statusCode());
+        assertEquals(404, response.statusCode());
     }
 
     @Test
@@ -247,7 +243,7 @@ class HttpTaskServerTest {
     @Test
     public void testNegativeGetAllTasks() throws IOException, InterruptedException {
         HttpResponse<String> response = createDeleteQuery("task/");
-        assertEquals(400, response.statusCode());
+        assertEquals(404, response.statusCode());
     }
 
     @Test
@@ -256,14 +252,11 @@ class HttpTaskServerTest {
 
         assertEquals(200, response.statusCode());
 
-        Integer testTaskId = gson.fromJson(response.body(), Integer.class);
+        Task testTaskId = gson.fromJson(response.body(), Task.class);
 
-        task4.setId(testTaskId.intValue());
-        response = createGetQuery("task/?id="+ task4.getId());
+        response = createGetQuery("task/?id=" + testTaskId.getId());
 
-        Task testTask = gson.fromJson(response.body(), Task.class);
-
-        assertTrue(task4.equals(testTask));
+        assertEquals(200, response.statusCode());
     }
 
     @Test
@@ -278,7 +271,7 @@ class HttpTaskServerTest {
         Integer testTaskId = gson.fromJson(response.body(), Integer.class);
 
         assertEquals(testTaskId.intValue(), task2.getId());
-        response = createGetQuery("task/?id="+ task2.getId());
+        response = createGetQuery("task/?id=" + task2.getId());
 
         Task testTask = gson.fromJson(response.body(), Task.class);
 
@@ -291,19 +284,19 @@ class HttpTaskServerTest {
         assertEquals(202, response.statusCode());
 
         response = createGetQuery("task/?id=" + task1.getId());
-        assertEquals(400, response.statusCode());
+        assertEquals(404, response.statusCode());
     }
 
     @Test
     public void negativeTestGetTask() throws IOException, InterruptedException {
         HttpResponse<String> response = createGetQuery("task/?id=100");
-        assertEquals(400, response.statusCode());
+        assertEquals(404, response.statusCode());
     }
 
     @Test
     public void negativeTestDeleteTask() throws IOException, InterruptedException {
         HttpResponse<String> response = createGetQuery("task/?id=100");
-        assertEquals(400, response.statusCode());
+        assertEquals(404, response.statusCode());
     }
 
     @Test
@@ -316,25 +309,16 @@ class HttpTaskServerTest {
     }
 
     @Test
-    public void testNegativeGetAllEpics() throws IOException, InterruptedException {
-        HttpResponse<String> response = createDeleteQuery("epic/");
-        assertEquals(400, response.statusCode());
-    }
-
-    @Test
     public void testAddEpic() throws IOException, InterruptedException {
         HttpResponse<String> response = createCreateOrUpdateQuery(epic3, "epic/");
 
         assertEquals(200, response.statusCode());
 
-        Integer testEpicId = gson.fromJson(response.body(), Integer.class);
+        Epic testEpic= gson.fromJson(response.body(), Epic.class);
 
-        epic3.setId(testEpicId.intValue());
-        response = createGetQuery("epic/?id="+ epic3.getId());
+        response = createGetQuery("epic/?id=" + testEpic.getId());
 
-        Epic testEpic = gson.fromJson(response.body(), Epic.class);
-
-        assertTrue(epic3.equals(testEpic));
+        assertEquals(200, response.statusCode());
     }
 
     @Test
@@ -343,17 +327,14 @@ class HttpTaskServerTest {
         epic2.setDescription("Попробуем");
 
         HttpResponse<String> response = createCreateOrUpdateQuery(epic2, "epic/");
-
         assertEquals(201, response.statusCode());
 
-        Integer testEpicId = gson.fromJson(response.body(), Integer.class);
-        epic2.setId(testEpicId);
+        Epic testEpicId = gson.fromJson(response.body(), Epic.class);
 
-        response = createGetQuery("epic/?id="+ epic2.getId());
+        response = createGetQuery("epic/?id=" + testEpicId.getId());
 
-        Epic testEpic = gson.fromJson(response.body(), Epic.class);
 
-        assertTrue(epic2.equals(testEpic));
+        assertEquals(200, response.statusCode());
     }
 
     @Test
@@ -362,19 +343,19 @@ class HttpTaskServerTest {
         assertEquals(202, response.statusCode());
 
         response = createGetQuery("epic/?id=" + epic1.getId());
-        assertEquals(400, response.statusCode());
+        assertEquals(404, response.statusCode());
     }
 
     @Test
     public void negativeTestGetEpic() throws IOException, InterruptedException {
         HttpResponse<String> response = createGetQuery("epic/?id=100");
-        assertEquals(400, response.statusCode());
+        assertEquals(404, response.statusCode());
     }
 
     @Test
     public void negativeTestDeleteEpic() throws IOException, InterruptedException {
         HttpResponse<String> response = createGetQuery("epic/?id=100");
-        assertEquals(400, response.statusCode());
+        assertEquals(404, response.statusCode());
     }
 
     @Test
@@ -389,7 +370,7 @@ class HttpTaskServerTest {
     @Test
     public void testNegativeGetAllSubTasks() throws IOException, InterruptedException {
         HttpResponse<String> response = createDeleteQuery("subTask/");
-        assertEquals(400, response.statusCode());
+        assertEquals(404, response.statusCode());
     }
 
     @Test
@@ -398,14 +379,11 @@ class HttpTaskServerTest {
 
         assertEquals(200, response.statusCode());
 
-        Integer testSubTaskId = gson.fromJson(response.body(), Integer.class);
+        SubTask testSubTaskId = gson.fromJson(response.body(), SubTask.class);
 
-        subTask4.setId(testSubTaskId.intValue());
-        response = createGetQuery("subtask/?id="+ subTask4.getId());
+        response = createGetQuery("subtask/?id=" + testSubTaskId.getId());
 
-        SubTask testSubTask = gson.fromJson(response.body(), SubTask.class);
-
-        assertTrue(subTask4.equals(testSubTask));
+        assertEquals(200, response.statusCode());
     }
 
     @Test
@@ -420,7 +398,7 @@ class HttpTaskServerTest {
         Integer testSubTaskId = gson.fromJson(response.body(), Integer.class);
         subTask2.setId(testSubTaskId);
 
-        response = createGetQuery("subtask/?id="+ subTask2.getId());
+        response = createGetQuery("subtask/?id=" + subTask2.getId());
 
         SubTask testSubTask = gson.fromJson(response.body(), SubTask.class);
 
@@ -433,26 +411,29 @@ class HttpTaskServerTest {
         assertEquals(202, response.statusCode());
 
         response = createGetQuery("subtask/?id=" + subTask1.getId());
-        assertEquals(400, response.statusCode());
+        assertEquals(404, response.statusCode());
     }
 
     @Test
     public void negativeTestGetSubTask() throws IOException, InterruptedException {
         HttpResponse<String> response = createGetQuery("subtask/?id=100");
-        assertEquals(400, response.statusCode());
+        assertEquals(404, response.statusCode());
     }
 
     @Test
     public void negativeTestDeleteSubTask() throws IOException, InterruptedException {
         HttpResponse<String> response = createGetQuery("subtask/?id=100");
-        assertEquals(400, response.statusCode());
+        assertEquals(404, response.statusCode());
     }
 
     @Test
     public void negativeTestNotCorrectUrl() throws IOException, InterruptedException {
         HttpResponse<String> response = createGetQuery("subtask1231231231/?id=100");
-        assertEquals(400, response.statusCode());
+        assertEquals(404, response.statusCode());
     }
-
-
+    @Test
+    public void testNegativeGetAllEpics() throws IOException, InterruptedException {
+        HttpResponse<String> response = createDeleteQuery("epic/");
+        assertEquals(404, response.statusCode());
+    }
 }

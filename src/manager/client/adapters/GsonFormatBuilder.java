@@ -12,10 +12,8 @@ public class GsonFormatBuilder {
     public static Gson buildGson() {
         GsonBuilder gsonBuilder = new GsonBuilder();
 
-        gsonBuilder.registerTypeAdapter(File.class, new FileGsonAdapter());
         gsonBuilder.registerTypeAdapter(LocalDateTime.class, new LocalDateTimeGsonAdapter());
         gsonBuilder.registerTypeAdapter(Duration.class, new DurationGsonAdapter());
-        gsonBuilder.registerTypeAdapter(HistoryManager.class, new HistoryManagerGsonAdapter());
         return gsonBuilder.create();
     }
 }

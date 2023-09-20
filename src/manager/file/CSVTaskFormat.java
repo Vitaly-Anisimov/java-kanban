@@ -25,6 +25,11 @@ public class CSVTaskFormat {
 
     public static List<Integer> historyFromString(final String value) {
         final List<Integer> list = new ArrayList<>();
+
+        if (value.isEmpty()) {
+            return list;
+        }
+
         final String[] lineValues = value.split(",");
 
         for (String lineValue : lineValues) {

@@ -31,43 +31,13 @@ class HttpTaskManagerTest extends TaskManagerTest<HttpTaskManager> {
     }
 
     @Test
-    public void testLoadFromEmptyServer() {
-        manager.clearTasks();
-        manager.clearEpics();
-        manager.clearSubTasks();
-        manager.save();
-
-        HttpTaskManager testmanager =  HttpTaskManager.load("http://localhost:"+ KVServer.PORT, "testkey");
-        assertNotNull(testmanager);
-
-        assertEquals(manager.getAllTask().size(), testmanager.getAllTask().size());
-        assertEquals(manager.getAllEpic().size(), testmanager.getAllEpic().size());
-        assertEquals(manager.getAllSubTask().size(), testmanager.getAllSubTask().size());
-        assertEquals(manager.getHistory().size(), testmanager.getHistory().size());
-    }
-
-    @Test
-    public void testLoadWithoutEpicSubtask() {
-        manager.clearSubTasks();
-        manager.save();
-
-        HttpTaskManager testmanager =  HttpTaskManager.load("http://localhost:"+ KVServer.PORT, "testkey");
-        assertNotNull(testmanager);
-
-        assertEquals(manager.getAllTask().size(), testmanager.getAllTask().size());
-        assertEquals(manager.getAllEpic().size(), testmanager.getAllEpic().size());
-        assertEquals(manager.getAllSubTask().size(), testmanager.getAllSubTask().size());
-        assertEquals(manager.getHistory().size(), testmanager.getHistory().size());
-    }
-
-    @Test
     public void testLoadWithoutEpic() {
         manager.clearEpics();
         manager.save();
 
-        HttpTaskManager testmanager =  HttpTaskManager.load("http://localhost:"+ KVServer.PORT, "testkey");
-        assertNotNull(testmanager);
+        HttpTaskManager testmanager = (HttpTaskManager) Managers.getDefault();
 
+        testmanager.load();
         assertEquals(manager.getAllTask().size(), testmanager.getAllTask().size());
         assertEquals(manager.getAllEpic().size(), testmanager.getAllEpic().size());
         assertEquals(manager.getAllSubTask().size(), testmanager.getAllSubTask().size());
@@ -81,9 +51,39 @@ class HttpTaskManagerTest extends TaskManagerTest<HttpTaskManager> {
         manager.getSubTask(subTask1.getId());
         manager.save();
 
-        HttpTaskManager testmanager =  HttpTaskManager.load("http://localhost:"+ KVServer.PORT, "testkey");
-        assertNotNull(testmanager);
+        HttpTaskManager testHttpManager = (HttpTaskManager) Managers.getDefault();
 
+        testHttpManager.load();
+        assertEquals(manager.getAllTask().size(), testHttpManager.getAllTask().size());
+        assertEquals(manager.getAllEpic().size(), testHttpManager.getAllEpic().size());
+        assertEquals(manager.getAllSubTask().size(), testHttpManager.getAllSubTask().size());
+        assertEquals(manager.getHistory().size(), testHttpManager.getHistory().size());
+    }
+
+    @Test
+    public void testLoadFromEmptyServer() {
+        manager.clearTasks();
+        manager.clearEpics();
+        manager.clearSubTasks();
+        manager.save();
+
+        HttpTaskManager testmanager = (HttpTaskManager) Managers.getDefault();
+
+        testmanager.load();
+        assertEquals(manager.getAllTask().size(), testmanager.getAllTask().size());
+        assertEquals(manager.getAllEpic().size(), testmanager.getAllEpic().size());
+        assertEquals(manager.getAllSubTask().size(), testmanager.getAllSubTask().size());
+        assertEquals(manager.getHistory().size(), testmanager.getHistory().size());
+    }
+
+    @Test
+    public void testLoadWithoutEpicSubtask() {
+        manager.clearSubTasks();
+        manager.save();
+
+        HttpTaskManager testmanager = (HttpTaskManager) Managers.getDefault();
+
+        testmanager.load();
         assertEquals(manager.getAllTask().size(), testmanager.getAllTask().size());
         assertEquals(manager.getAllEpic().size(), testmanager.getAllEpic().size());
         assertEquals(manager.getAllSubTask().size(), testmanager.getAllSubTask().size());

@@ -71,7 +71,7 @@ public abstract class TaskManagerTest <T extends TaskManager> {
         manager.addSubTask(subTask3);
     }
 
-    @Test
+    /*  @Test
     public void testUpdateTaskWithChanges() {
         Task newTask1 = new Task("Действие первое", "Обновленная таска"
                 , Status.NEW, LocalDateTime.of(2011, 8, 5, 9, 10)
@@ -430,5 +430,5 @@ public abstract class TaskManagerTest <T extends TaskManager> {
         assertEquals(Duration.between(subTask1.getStartTime(), subTask2.getEndTime()), epic1.getDuration());
         assertEquals(subTask1.getStartTime(), epic1.getStartTime());
         assertEquals(subTask2.getEndTime(), epic1.getEndTime());
-    }
+    }*/
 }

@@ -19,7 +19,7 @@ public class Main {
         kvServer.start();
 
         HttpTaskManager httpTaskManager = (HttpTaskManager) Managers.getDefault();
-        httpTaskManager.save();
+
 
 
       /*  TaskManager taskManager = Managers.getDefault();
