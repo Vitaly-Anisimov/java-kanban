@@ -1,7 +1,7 @@
 import manager.Managers;
-import manager.client.HttpTaskManager;
-import server.HttpTaskServer;
-import server.KVServer;
+import manager.http.HttpTaskManager;
+import manager.http.HttpTaskServer;
+import manager.http.KVServer;
 
 import java.io.IOException;
 

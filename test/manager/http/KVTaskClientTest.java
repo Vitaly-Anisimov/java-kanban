@@ -1,10 +1,8 @@
-package manager.client;
+package manager.http;
 
-import exception.KVTaskInterruptedOrIOException;
-import org.junit.jupiter.api.BeforeAll;
+import exception.ClientException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import server.KVServer;
 
 import java.io.IOException;
 
@@ -25,7 +23,7 @@ class KVTaskClientTest {
     @Test
     public void testGetInterruptedException() {
         kvServer.stop();
-        assertThrows(KVTaskInterruptedOrIOException.class, () -> {
+        assertThrows(ClientException.class, () -> {
             KeyValueClient testClient = new KVTaskClient("http://localhost:" + KVServer.PORT);
         });
     }

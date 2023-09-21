@@ -1,10 +1,8 @@
-package manager.client.adapters;
+package manager.http.adapters;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import manager.history.HistoryManager;
 
-import java.io.File;
 import java.time.Duration;
 import java.time.LocalDateTime;
 

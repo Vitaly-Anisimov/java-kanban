@@ -1,6 +1,6 @@
-package manager.client;
+package manager.http;
 import exception.KVTaskClientBadStatusCodeException;
-import exception.KVTaskInterruptedOrIOException;
+import exception.ClientException;
 
 import java.io.IOException;
 import java.net.URI;
@@ -27,7 +27,7 @@ public class KVTaskClient implements KeyValueClient {
         try {
             response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
         } catch (IOException | InterruptedException e) {
-            throw new KVTaskInterruptedOrIOException(e.getMessage());
+            throw new ClientException(e.getMessage());
     }
         return response.body();
     }
@@ -55,7 +55,7 @@ public class KVTaskClient implements KeyValueClient {
                 throw new KVTaskClientBadStatusCodeException("Bad status = " + response.statusCode());
             }
         } catch (IOException | InterruptedException e) {
-            throw new KVTaskInterruptedOrIOException(e.getMessage());
+            throw new ClientException(e.getMessage());
         }
     }
 
@@ -77,7 +77,7 @@ public class KVTaskClient implements KeyValueClient {
                 throw new KVTaskClientBadStatusCodeException("Bad status = " + response.statusCode());
             }
         } catch (IOException | InterruptedException e) {
-            throw new KVTaskInterruptedOrIOException(e.getMessage());
+            throw new ClientException(e.getMessage());
         }
         return response.body();
     }

@@ -1,9 +1,9 @@
 package manager;
 
-import manager.client.HttpTaskManager;
+import manager.http.HttpTaskManager;
 import manager.history.HistoryManager;
 import manager.history.InMemoryHistoryManager;
-import server.KVServer;
+import manager.http.KVServer;
 
 public class Managers {
     public static TaskManager getDefault() {

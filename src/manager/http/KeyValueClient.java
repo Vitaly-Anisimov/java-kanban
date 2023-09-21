@@ -1,4 +1,4 @@
-package manager.client;
+package manager.http;
 
 public interface KeyValueClient {
     void put(String key, String json);
