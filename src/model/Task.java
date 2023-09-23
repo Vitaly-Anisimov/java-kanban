@@ -49,11 +49,11 @@ public class Task {
     }
 
     public Duration getDuration() {
-        return duration;
+        return this.duration;
     }
 
     public int getId() {
-        return id;
+        return this.id;
     }
 
     public Integer getEpicId() {

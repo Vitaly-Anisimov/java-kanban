@@ -14,7 +14,6 @@ import java.util.List;
 
 public class HttpTaskManager extends FileBackedTasksManager {
     protected final KVTaskClient kvTaskClient;
-
     public HttpTaskManager(String url) {
         super(null);
 

@@ -1,14 +1,22 @@
 import manager.Managers;
+import manager.TaskManager;
 import manager.http.HttpTaskManager;
 import manager.http.HttpTaskServer;
 import manager.http.KVServer;
+import manager.mem.InMemoryTaskManager;
+import model.Epic;
+import model.Status;
+import model.SubTask;
+import model.Task;
 
 import java.io.IOException;
+import java.time.Duration;
+import java.time.LocalDateTime;
 
 public class Main {
 
     public static void main(String[] args) throws IOException {
-        try { HttpTaskServer httpTaskServer = new HttpTaskServer();
+        try { HttpTaskServer httpTaskServer = new HttpTaskServer(new InMemoryTaskManager());
             httpTaskServer.start();
             //httpTaskServer.stop(30);
         } catch (IOException e) {
@@ -20,9 +28,7 @@ public class Main {
 
         HttpTaskManager httpTaskManager = (HttpTaskManager) Managers.getDefault();
 
-
-
-      /*  TaskManager taskManager = Managers.getDefault();
+        TaskManager taskManager = Managers.getDefault();
         LocalDateTime timeIsTime = LocalDateTime.MIN;
 
         Task task1 = new Task("Действие первое", "Пойти в магазин", Status.NEW, timeIsTime.plusDays(10), Duration.ofMinutes(10));
@@ -56,6 +62,6 @@ public class Main {
         task = taskManager.getTask(task1.getId());
         taskManager.deleteTask(task1.getId());
         task = taskManager.getTask(task2.getId());
-        taskManager.clearEpics();*/
+        taskManager.clearEpics();
     }
 }

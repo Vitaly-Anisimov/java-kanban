@@ -5,7 +5,6 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
 import exception.BadMethodException;
 import exception.NotFoundException;
-import manager.Managers;
 import manager.TaskManager;
 import manager.http.adapters.GsonFormatBuilder;
 import model.Epic;
@@ -17,7 +16,6 @@ import java.net.HttpURLConnection;
 import java.net.InetSocketAddress;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.util.Optional;
 
 public class HttpTaskServer {
     public static final int HTTP_TASK_SERVER_PORT = 8080;
@@ -27,8 +25,8 @@ public class HttpTaskServer {
     private final Gson gson;
 
 
-    public HttpTaskServer() throws IOException {
-        manager = Managers.getDefault();
+    public HttpTaskServer(TaskManager manager) throws IOException {
+        this.manager = manager;
         gson = GsonFormatBuilder.buildGson();
         server = HttpServer.create(new InetSocketAddress(HTTP_TASK_SERVER_PORT), 0);
 
@@ -59,17 +57,6 @@ public class HttpTaskServer {
         return gson.toJson(toGson);
     }
 
-    private Optional<Integer> parseId(String str) {
-        Optional<Integer> result;
-
-        try {
-            result = Optional.of(Integer.parseInt(str));
-        } catch (NumberFormatException e) {
-            result = Optional.empty();
-        }
-        return result;
-    }
-
     private void handleForTask(HttpExchange exchange, String requestMethod, Integer idFromRequest) throws IOException, NotFoundException {
         Task taskFromManager;
         Task taskFromBody;
@@ -80,20 +67,25 @@ public class HttpTaskServer {
                     sendText(exchange, formatToGson(manager.getAllTask()), HttpURLConnection.HTTP_OK);
                     return;
                 } else {
-                    taskFromManager = manager.getTask(idFromRequest.intValue());
-
-                    if (taskFromManager == null) {
-                        throw new NotFoundException("Not find with id = " + idFromRequest.intValue());
-                    } else {
-                        sendText(exchange, formatToGson(taskFromManager), HttpURLConnection.HTTP_OK);
-                    }
+                    taskFromManager = manager.getTask(idFromRequest);
+                    sendText(exchange, formatToGson(taskFromManager), HttpURLConnection.HTTP_OK);
                 }
                 break;
             case "POST":
                 String requestBody = readText(exchange);
+                int statusCode;
+
                 taskFromBody = gson.fromJson(requestBody, Task.class);
-                manager.addTask(taskFromBody);
-                sendText(exchange, formatToGson(taskFromBody), HttpURLConnection.HTTP_OK);
+
+                if (taskFromBody.getId() == 0) {
+                    manager.addTask(taskFromBody);
+                    statusCode = HttpURLConnection.HTTP_CREATED;
+                } else {
+                    manager.updateTask(taskFromBody);
+                    statusCode = HttpURLConnection.HTTP_OK;
+                }
+
+                sendText(exchange, formatToGson(taskFromBody), statusCode);
                 break;
             case "DELETE":
                 if (idFromRequest == null) {
@@ -105,7 +97,7 @@ public class HttpTaskServer {
 
                 break;
             default:
-                throw new BadMethodException("Unsupported method : " + exchange.getRequestMethod());
+                sendText(exchange, formatToGson("Wait GET/POST/DELETE method, expected : " + requestMethod), HttpURLConnection.HTTP_BAD_METHOD);
         }
     }
 
@@ -119,21 +111,25 @@ public class HttpTaskServer {
                     sendText(exchange, formatToGson(manager.getAllEpic()), HttpURLConnection.HTTP_OK);
                     return;
                 } else {
-                    epicFromManager = manager.getEpic(idFromRequest.intValue());
-
-                    if (epicFromManager == null) {
-                        throw new NotFoundException("Not find with id = " + idFromRequest.intValue());
-                    } else {
-                        sendText(exchange, formatToGson(epicFromManager), HttpURLConnection.HTTP_OK);
-                    }
+                    epicFromManager = manager.getEpic(idFromRequest);
+                    sendText(exchange, formatToGson(epicFromManager), HttpURLConnection.HTTP_OK);
                 }
                 break;
             case "POST":
                 String requestBody = readText(exchange);
+                int statusCode;
 
                 epicFromBody = gson.fromJson(requestBody, Epic.class);
-                manager.addEpic(epicFromBody);
-                sendText(exchange, formatToGson(epicFromBody), HttpURLConnection.HTTP_OK);
+
+                if (epicFromBody.getId() == 0) {
+                    manager.addEpic(epicFromBody);
+                    statusCode = HttpURLConnection.HTTP_CREATED;
+                } else {
+                    manager.updateEpic(epicFromBody);
+                    statusCode = HttpURLConnection.HTTP_OK;
+                }
+
+                sendText(exchange, formatToGson(epicFromBody), statusCode);
                 break;
             case "DELETE":
                 if (idFromRequest == null) {
@@ -145,7 +141,7 @@ public class HttpTaskServer {
 
                 break;
             default:
-                throw new BadMethodException("Unsupported method : " + exchange.getRequestMethod() + exchange.getRequestMethod());
+                sendText(exchange, formatToGson("Wait GET/POST/DELETE method, expected : " + requestMethod), HttpURLConnection.HTTP_BAD_METHOD);
         }
     }
 
@@ -159,21 +155,25 @@ public class HttpTaskServer {
                     sendText(exchange, formatToGson(manager.getAllSubTask()), HttpURLConnection.HTTP_OK);
                     return;
                 } else {
-                    subTaskFromManager = manager.getSubTask(idFromRequest.intValue());
-
-                    if (subTaskFromManager == null) {
-                        throw new NotFoundException("Not find with id = " + idFromRequest.intValue());
-                    } else {
-                        sendText(exchange, formatToGson(subTaskFromManager), HttpURLConnection.HTTP_OK);
-                    }
+                    subTaskFromManager = manager.getSubTask(idFromRequest);
+                    sendText(exchange, formatToGson(subTaskFromManager), HttpURLConnection.HTTP_OK);
                 }
                 break;
             case "POST":
                 String requestBody = readText(exchange);
+                int statusCode;
 
                 subTaskFromBody = gson.fromJson(requestBody, SubTask.class);
-                manager.addSubTask(subTaskFromBody);
-                sendText(exchange, formatToGson(subTaskFromBody), HttpURLConnection.HTTP_OK);
+
+                if (subTaskFromBody.getId() == 0) {
+                    manager.addSubTask(subTaskFromBody);
+                    statusCode = HttpURLConnection.HTTP_CREATED;
+                } else {
+                    manager.updateSubTask(subTaskFromBody);
+                    statusCode = HttpURLConnection.HTTP_OK;
+                }
+
+                sendText(exchange, formatToGson(subTaskFromBody), statusCode);
                 break;
             case "DELETE":
                 if (idFromRequest == null) {
@@ -185,7 +185,7 @@ public class HttpTaskServer {
 
                 break;
             default:
-                throw new BadMethodException("Unsupported method : " + exchange.getRequestMethod());
+                sendText(exchange, formatToGson("Wait GET/POST/DELETE method, expected : " + requestMethod), HttpURLConnection.HTTP_BAD_METHOD);
         }
     }
 

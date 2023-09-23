@@ -1,6 +1,7 @@
 package manager.mem;
 
 import exception.ManagerOverlapTimeException;
+import exception.NotFoundException;
 import manager.Managers;
 import manager.TaskManager;
 import manager.history.HistoryManager;
@@ -51,7 +52,7 @@ public class InMemoryTaskManager implements TaskManager {
         Task task = tasks.get(id);
 
         if (task == null) {
-            return null;
+            throw new NotFoundException("Not find with id = " + id);
         }
         historyManager.add(task);
         return task;
@@ -64,6 +65,8 @@ public class InMemoryTaskManager implements TaskManager {
         if (task != null) {
             historyManager.remove(id);
             prioritatedTasks.remove(task);
+        } else {
+            throw new NotFoundException("Not find with id = " + id);
         }
     }
 
@@ -81,7 +84,7 @@ public class InMemoryTaskManager implements TaskManager {
         Task oldTask = tasks.get(task.getId());
 
         if (oldTask == null) {
-            return;
+            throw new NotFoundException("Not find with id = " + id);
         }
         checkOverlapTimeTask(task);
         prioritatedTasks.remove(oldTask);
@@ -161,7 +164,7 @@ public class InMemoryTaskManager implements TaskManager {
         Epic epic = epics.get(id);
 
         if (epic == null) {
-            return null;
+            throw new NotFoundException("Not find with id = " + id);
         }
         historyManager.add(epic);
         return epic;
@@ -176,6 +179,8 @@ public class InMemoryTaskManager implements TaskManager {
                 deleteSubTask(subTask);
             }
             historyManager.remove(id);
+        } else {
+            throw new NotFoundException("Not find with id = " + id);
         }
     }
 
@@ -191,6 +196,10 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void updateEpic(Epic epic) {
         Epic oldEpic = epics.get(epic.getId());
+
+        if (oldEpic == null) {
+            throw new NotFoundException("Not find with id = " + id);
+        }
 
         oldEpic.setDescription(epic.getDescription());
         oldEpic.setName(epic.getName());
@@ -220,7 +229,7 @@ public class InMemoryTaskManager implements TaskManager {
         SubTask subTask = subTasks.get(id);
 
         if (subTask == null) {
-            return null;
+            throw new NotFoundException("Not find with id = " + id);
         }
         historyManager.add(subTask);
         return subTask;
@@ -231,7 +240,7 @@ public class InMemoryTaskManager implements TaskManager {
         SubTask oldSubTask = subTasks.get(subTask.getId());
 
         if (oldSubTask == null) {
-            return;
+            throw new NotFoundException("Not find with id = " + id);
         }
         checkOverlapTimeTask(subTask);
         prioritatedTasks.remove(subTask);
@@ -257,6 +266,8 @@ public class InMemoryTaskManager implements TaskManager {
                 updateEpicStatus(epic);
                 updateEpicDuration(epic);
             }
+        } else {
+            throw new NotFoundException("Not find with id = " + id);
         }
     }
 

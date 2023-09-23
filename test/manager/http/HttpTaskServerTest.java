@@ -2,6 +2,7 @@ package manager.http;
 
 import com.google.gson.Gson;
 import manager.http.adapters.GsonFormatBuilder;
+import manager.mem.InMemoryTaskManager;
 import model.Epic;
 import model.Status;
 import model.SubTask;
@@ -35,20 +36,15 @@ class HttpTaskServerTest {
     private SubTask subTask2;
     private SubTask subTask3;
     private SubTask subTask4;
-
-    KVServer kvServer;
-
     private HttpTaskServer httpTaskServer;
     private HttpClient httpClient;
 
     private Gson gson;
 
     @BeforeEach
-    public void settupTest() throws IOException, InterruptedException {
-        kvServer = new KVServer();
-        kvServer.start();
+    public void setupTest() throws IOException, InterruptedException {
 
-        httpTaskServer = new HttpTaskServer();
+        httpTaskServer = new HttpTaskServer(new InMemoryTaskManager());
         httpTaskServer.start();
 
         gson = GsonFormatBuilder.buildGson();
@@ -60,7 +56,6 @@ class HttpTaskServerTest {
     @AfterEach
     public void stopServers() {
         httpTaskServer.stop();
-        kvServer.stop();
     }
 
     public HttpResponse<String> createGetQuery(String param) throws IOException, InterruptedException {
@@ -136,7 +131,6 @@ class HttpTaskServerTest {
         epic1 = new Epic("Поиграть в шахматы", "Поставить мат Магнусуну");
         epic2 = new Epic("Разгадать смысл жизни", "Подумать зачем всё это надо");
         epic3 = new Epic("Третий тестовый эпик", "Не нужный эпик");
-        epic3.setId(9);
 
         response = createCreateOrUpdateQuery(epic1, "epic/");
         Epic epicFromServer1 = gson.fromJson(response.body(), Epic.class);
@@ -250,7 +244,7 @@ class HttpTaskServerTest {
     public void testAddTask() throws IOException, InterruptedException {
         HttpResponse<String> response = createCreateOrUpdateQuery(task4, "task/");
 
-        assertEquals(HttpURLConnection.HTTP_OK, response.statusCode());
+        assertEquals(HttpURLConnection.HTTP_CREATED, response.statusCode());
 
         Task testTaskId = gson.fromJson(response.body(), Task.class);
 
@@ -276,7 +270,7 @@ class HttpTaskServerTest {
 
     @Test
     public void negativeTestDeleteTask() throws IOException, InterruptedException {
-        HttpResponse<String> response = createGetQuery("task/?id=100");
+        HttpResponse<String> response = createDeleteQuery("task/?id=100");
         assertEquals(HttpURLConnection.HTTP_NOT_FOUND, response.statusCode());
     }
 
@@ -293,27 +287,11 @@ class HttpTaskServerTest {
     public void testAddEpic() throws IOException, InterruptedException {
         HttpResponse<String> response = createCreateOrUpdateQuery(epic3, "epic/");
 
-        assertEquals(HttpURLConnection.HTTP_OK, response.statusCode());
+        assertEquals(HttpURLConnection.HTTP_CREATED, response.statusCode());
 
         Epic testEpic= gson.fromJson(response.body(), Epic.class);
 
         response = createGetQuery("epic/?id=" + testEpic.getId());
-
-        assertEquals(HttpURLConnection.HTTP_OK, response.statusCode());
-    }
-
-    @Test
-    public void testUpdateEpic() throws IOException, InterruptedException {
-        epic2.setName("Тест junit");
-        epic2.setDescription("Попробуем");
-
-        HttpResponse<String> response = createCreateOrUpdateQuery(epic2, "epic/");
-        assertEquals(HttpURLConnection.HTTP_OK, response.statusCode());
-
-        Epic testEpicId = gson.fromJson(response.body(), Epic.class);
-
-        response = createGetQuery("epic/?id=" + testEpicId.getId());
-
 
         assertEquals(HttpURLConnection.HTTP_OK, response.statusCode());
     }
@@ -335,7 +313,7 @@ class HttpTaskServerTest {
 
     @Test
     public void negativeTestDeleteEpic() throws IOException, InterruptedException {
-        HttpResponse<String> response = createGetQuery("epic/?id=100");
+        HttpResponse<String> response = createDeleteQuery("epic/?id=100");
         assertEquals(HttpURLConnection.HTTP_NOT_FOUND, response.statusCode());
     }
 
@@ -358,7 +336,7 @@ class HttpTaskServerTest {
     public void testAddSubTask() throws IOException, InterruptedException {
         HttpResponse<String> response = createCreateOrUpdateQuery(subTask4, "subtask/");
 
-        assertEquals(HttpURLConnection.HTTP_OK, response.statusCode());
+        assertEquals(HttpURLConnection.HTTP_CREATED, response.statusCode());
 
         SubTask testSubTaskId = gson.fromJson(response.body(), SubTask.class);
 
@@ -385,7 +363,7 @@ class HttpTaskServerTest {
 
     @Test
     public void negativeTestDeleteSubTask() throws IOException, InterruptedException {
-        HttpResponse<String> response = createGetQuery("subtask/?id=100");
+        HttpResponse<String> response = createDeleteQuery("subtask/?id=100");
         assertEquals(HttpURLConnection.HTTP_NOT_FOUND, response.statusCode());
     }
 
@@ -398,5 +376,73 @@ class HttpTaskServerTest {
     public void testNegativeGetAllEpics() throws IOException, InterruptedException {
         HttpResponse<String> response = createDeleteQuery("epic/");
         assertEquals(HttpURLConnection.HTTP_BAD_METHOD, response.statusCode());
+    }
+
+    @Test
+    void testUpdateTask() throws IOException, InterruptedException {
+        task1.setDescription("Test1");
+        task1.setName("Test1");
+        task1.setDuration(Duration.ofMinutes(10));
+
+        HttpResponse<String> response = createCreateOrUpdateQuery(task1, "task/");
+        assertEquals(HttpURLConnection.HTTP_OK, response.statusCode());
+
+        response = createGetQuery("task/?id=" + task1.getId());
+        Task testTask = gson.fromJson(response.body(), Task.class);
+        assertTrue(task1.equals(testTask));
+    }
+
+    @Test
+    void testNegativeUpdateTask() throws IOException, InterruptedException {
+        task4.setId(100);
+
+        HttpResponse<String> response = createCreateOrUpdateQuery(task4, "task/");
+        assertEquals(HttpURLConnection.HTTP_NOT_FOUND, response.statusCode());
+    }
+
+    @Test
+    void testUpdateEpic() throws IOException, InterruptedException {
+        epic1.setDescription("Test1");
+        epic1.setName("Test1");
+
+        HttpResponse<String> response = createCreateOrUpdateQuery(epic1, "epic/");
+        assertEquals(HttpURLConnection.HTTP_OK, response.statusCode());
+
+        response = createGetQuery("epic/?id=" + epic1.getId());
+        Epic testEpic = gson.fromJson(response.body(), Epic.class);
+
+        assertEquals(epic1.getId(), testEpic.getId());
+        assertEquals(epic1.getName(), testEpic.getName());
+        assertEquals(epic1.getDescription(), testEpic.getDescription());
+    }
+
+    @Test
+    void testNegativeUpdateEpic() throws IOException, InterruptedException {
+        epic3.setId(100);
+
+        HttpResponse<String> response = createCreateOrUpdateQuery(epic3, "epic/");
+        assertEquals(HttpURLConnection.HTTP_NOT_FOUND, response.statusCode());
+    }
+
+    @Test
+    void testUpdateSubtask() throws IOException, InterruptedException {
+        subTask3.setDescription("Test1");
+        subTask3.setName("Test1");
+
+        HttpResponse<String> response = createCreateOrUpdateQuery(subTask3, "subtask/");
+        assertEquals(HttpURLConnection.HTTP_OK, response.statusCode());
+
+        response = createGetQuery("subtask/?id=" + subTask3.getId());
+        SubTask testSubtask = gson.fromJson(response.body(), SubTask.class);
+
+        assertTrue(subTask3.equals(testSubtask));
+    }
+
+    @Test
+    void testNegativeUpdateSubtask() throws IOException, InterruptedException {
+        subTask4.setId(100);
+
+        HttpResponse<String> response = createCreateOrUpdateQuery(subTask4, "subtask/");
+        assertEquals(HttpURLConnection.HTTP_NOT_FOUND, response.statusCode());
     }
 }
