@@ -12,6 +12,7 @@ public class GsonFormatBuilder {
 
         gsonBuilder.registerTypeAdapter(LocalDateTime.class, new LocalDateTimeGsonAdapter());
         gsonBuilder.registerTypeAdapter(Duration.class, new DurationGsonAdapter());
+        gsonBuilder.serializeNulls();
         return gsonBuilder.create();
     }
 }

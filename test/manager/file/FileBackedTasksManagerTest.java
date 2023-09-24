@@ -3,6 +3,7 @@ package manager.file;
 import exception.ManagerLoadException;
 import exception.ManagerSaveException;
 import manager.TaskManagerTest;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import java.io.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -12,6 +13,11 @@ class FileBackedTasksManagerTest extends TaskManagerTest<FileBackedTasksManager>
     @Override
     public FileBackedTasksManager createTaskManager() {
         return new FileBackedTasksManager(TEST_FILE);
+    }
+
+    @BeforeEach
+    public void setupTest() {
+        createTestTasks();
     }
 
     @Test
@@ -54,7 +60,6 @@ class FileBackedTasksManagerTest extends TaskManagerTest<FileBackedTasksManager>
     @Test
     public void testLoadSaveWithSubstaskAndHistory() {
         manager.clearTasks();
-        manager.clearEpics();
         manager.getSubTask(subTask2.getId());
         manager.getSubTask(subTask1.getId());
 
@@ -85,6 +90,7 @@ class FileBackedTasksManagerTest extends TaskManagerTest<FileBackedTasksManager>
     public void testNormalLoadAndSave() {
         manager.getTask(task1.getId());
         manager.getTask(task2.getId());
+        manager.addTask(task3);
         manager.getTask(task3.getId());
         manager.getSubTask(subTask1.getId());
         manager.getEpic(epic1.getId());

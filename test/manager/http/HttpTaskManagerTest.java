@@ -19,7 +19,7 @@ class HttpTaskManagerTest extends TaskManagerTest<HttpTaskManager> {
     }
 
     @BeforeEach
-    public void createAndStartKvServer() throws IOException {
+    public void setupTest() throws IOException {
         kvServer = new KVServer();
         kvServer.start();
         createTestTasks();

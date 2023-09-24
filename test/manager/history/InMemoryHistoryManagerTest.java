@@ -2,10 +2,12 @@ package manager.history;
 
 import manager.Managers;
 import manager.TaskManager;
+import manager.file.FileBackedTasksManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import model.*;
 
+import java.io.File;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -21,7 +23,7 @@ class InMemoryHistoryManagerTest {
 
     @BeforeEach
     public void addTasksInHistoryManager() {
-        taskManager = Managers.getDefault();
+        taskManager = new FileBackedTasksManager(new File("test\\savedTasks\\SaveFile.csv"));
         task1 = new Task("Действие первое", "Пойти в магазин"
                     , Status.NEW, LocalDateTime.of(2010, 8, 5, 9, 10)
                     , Duration.ofMinutes(30));

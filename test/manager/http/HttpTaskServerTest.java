@@ -235,12 +235,6 @@ class HttpTaskServerTest {
     }
 
     @Test
-    public void testNegativeGetAllTasks() throws IOException, InterruptedException {
-        HttpResponse<String> response = createDeleteQuery("task/");
-        assertEquals(HttpURLConnection.HTTP_BAD_METHOD, response.statusCode());
-    }
-
-    @Test
     public void testAddTask() throws IOException, InterruptedException {
         HttpResponse<String> response = createCreateOrUpdateQuery(task4, "task/");
 
@@ -256,7 +250,7 @@ class HttpTaskServerTest {
     @Test
     public void testDeleteTask() throws IOException, InterruptedException {
         HttpResponse<String> response = createDeleteQuery("task/?id=" + task1.getId());
-        assertEquals(HttpURLConnection.HTTP_OK, response.statusCode());
+        assertEquals(HttpURLConnection.HTTP_NO_CONTENT, response.statusCode());
 
         response = createGetQuery("task/?id=" + task1.getId());
         assertEquals(HttpURLConnection.HTTP_NOT_FOUND, response.statusCode());
@@ -299,7 +293,7 @@ class HttpTaskServerTest {
     @Test
     public void testDeleteEpic() throws IOException, InterruptedException {
         HttpResponse<String> response = createDeleteQuery("epic/?id=" + epic1.getId());
-        assertEquals(HttpURLConnection.HTTP_OK, response.statusCode());
+        assertEquals(HttpURLConnection.HTTP_NO_CONTENT, response.statusCode());
 
         response = createGetQuery("epic/?id=" + epic1.getId());
         assertEquals(HttpURLConnection.HTTP_NOT_FOUND, response.statusCode());
@@ -349,7 +343,7 @@ class HttpTaskServerTest {
     @Test
     public void testDeleteSubTask() throws IOException, InterruptedException {
         HttpResponse<String> response = createDeleteQuery("subtask/?id=" + subTask1.getId());
-        assertEquals(HttpURLConnection.HTTP_OK, response.statusCode());
+        assertEquals(HttpURLConnection.HTTP_NO_CONTENT, response.statusCode());
 
         response = createGetQuery("subtask/?id=" + subTask1.getId());
         assertEquals(HttpURLConnection.HTTP_NOT_FOUND, response.statusCode());
@@ -370,11 +364,6 @@ class HttpTaskServerTest {
     @Test
     public void negativeTestNotCorrectUrl() throws IOException, InterruptedException {
         HttpResponse<String> response = createGetQuery("subtask1231231231/?id=100");
-        assertEquals(HttpURLConnection.HTTP_BAD_METHOD, response.statusCode());
-    }
-    @Test
-    public void testNegativeGetAllEpics() throws IOException, InterruptedException {
-        HttpResponse<String> response = createDeleteQuery("epic/");
         assertEquals(HttpURLConnection.HTTP_BAD_METHOD, response.statusCode());
     }
 
@@ -445,4 +434,26 @@ class HttpTaskServerTest {
         HttpResponse<String> response = createCreateOrUpdateQuery(subTask4, "subtask/");
         assertEquals(HttpURLConnection.HTTP_NOT_FOUND, response.statusCode());
     }
+
+    @Test
+    void testGetNumberFormatException() throws IOException, InterruptedException {
+        HttpResponse<String> response = createGetQuery("subtask/?id=абв");
+        assertEquals(HttpURLConnection.HTTP_BAD_REQUEST, response.statusCode());
+
+        response = createGetQuery("epic/?id=абв");
+        assertEquals(HttpURLConnection.HTTP_BAD_REQUEST, response.statusCode());
+
+        response = createGetQuery("task/?id=абв");
+        assertEquals(HttpURLConnection.HTTP_BAD_REQUEST, response.statusCode());
+
+        response = createDeleteQuery("task/?id=абв");
+        assertEquals(HttpURLConnection.HTTP_BAD_REQUEST, response.statusCode());
+
+        response = createDeleteQuery("epic/?id=абв");
+        assertEquals(HttpURLConnection.HTTP_BAD_REQUEST, response.statusCode());
+
+        response = createDeleteQuery("subtask/?id=абв");
+        assertEquals(HttpURLConnection.HTTP_BAD_REQUEST, response.statusCode());
+    }
 }
+

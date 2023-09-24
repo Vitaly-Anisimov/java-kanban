@@ -19,16 +19,16 @@ public class InMemoryTaskManager implements TaskManager {
     protected final Map<Integer, SubTask> subTasks = new HashMap<>();
     protected final Map<Integer, Epic> epics = new HashMap<>();
     protected final HistoryManager historyManager = Managers.getDefaultHistory();
-    protected int id;
     protected final Set<Task> prioritatedTasks = new TreeSet<>(Comparator.comparing(Task::getStartTime));
+    protected int id;
 
     private void checkOverlapTimeTask(Task task) {
         for (Task prioritateTask : prioritatedTasks) {
-            if (task.getId() == prioritateTask.getId()) {
+            if (task.getId().intValue() == prioritateTask.getId()) {
                 continue;
             }
             if (task.getEndTime().isAfter(prioritateTask.getStartTime())
-                && task.getStartTime().isBefore(prioritateTask.getEndTime())) {
+                    && task.getStartTime().isBefore(prioritateTask.getEndTime())) {
                 throw new ManagerOverlapTimeException("Произошло наложение по времени между задачами id = " + task.getId() + " и id = " + prioritateTask.getId());
             }
         }
@@ -40,9 +40,8 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void addTask(Task task) {
-
-        checkOverlapTimeTask(task);
         task.setId(++id);
+        checkOverlapTimeTask(task);
         tasks.put(task.getId(), task);
         prioritatedTasks.add(task);
     }
@@ -62,12 +61,11 @@ public class InMemoryTaskManager implements TaskManager {
     public void deleteTask(int id) {
         Task task = tasks.remove(id);
 
-        if (task != null) {
-            historyManager.remove(id);
-            prioritatedTasks.remove(task);
-        } else {
+        if (task == null) {
             throw new NotFoundException("Not find with id = " + id);
         }
+        historyManager.remove(id);
+        prioritatedTasks.remove(task);
     }
 
     @Override
@@ -174,13 +172,13 @@ public class InMemoryTaskManager implements TaskManager {
     public void deleteEpic(int id) {
         Epic epic = epics.remove(id);
 
-        if (epic != null) {
-            for (Integer subTask : epic.getIdSubTasks()) {
-                deleteSubTask(subTask);
-            }
-            historyManager.remove(id);
-        } else {
+        if (epic == null) {
             throw new NotFoundException("Not find with id = " + id);
+        }
+
+        historyManager.remove(id);
+        for (Integer subTask : epic.getIdSubTasks()) {
+            deleteSubTask(subTask);
         }
     }
 
@@ -200,7 +198,6 @@ public class InMemoryTaskManager implements TaskManager {
         if (oldEpic == null) {
             throw new NotFoundException("Not find with id = " + id);
         }
-
         oldEpic.setDescription(epic.getDescription());
         oldEpic.setName(epic.getName());
     }
@@ -212,11 +209,10 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void addSubTask(SubTask subTask) {
-        checkOverlapTimeTask(subTask);
-
-        Epic epic = epics.get(subTask.getEpicId().intValue());
+        Epic epic = epics.get(subTask.getEpicId());
 
         subTask.setId(++id);
+        checkOverlapTimeTask(subTask);
         subTasks.put(subTask.getId(), subTask);
         epic.addSubTaskId(subTask.getId());
         updateEpicStatus(epic);
@@ -247,7 +243,7 @@ public class InMemoryTaskManager implements TaskManager {
         subTasks.put(subTask.getId(), subTask);
         prioritatedTasks.add(subTask);
 
-        Epic epic = epics.get(subTask.getEpicId().intValue());
+        Epic epic = epics.get(subTask.getEpicId());
         updateEpicDuration(epic);
     }
 
@@ -255,20 +251,20 @@ public class InMemoryTaskManager implements TaskManager {
     public void deleteSubTask(int id) {
         SubTask subTask = subTasks.remove(id);
 
-        if (subTask != null) {
-            historyManager.remove(id);
-            prioritatedTasks.remove(subTask);
-
-            Epic epic = epics.get(subTask.getEpicId());
-
-            if (epic != null) {
-                epic.deleteSubTaskId(id);
-                updateEpicStatus(epic);
-                updateEpicDuration(epic);
-            }
-        } else {
+        if (subTask == null) {
             throw new NotFoundException("Not find with id = " + id);
         }
+        historyManager.remove(id);
+        prioritatedTasks.remove(subTask);
+
+        Epic epic = epics.get(subTask.getEpicId());
+
+        if (epic == null) {
+            return;
+        }
+        epic.deleteSubTaskId(id);
+        updateEpicStatus(epic);
+        updateEpicDuration(epic);
     }
 
     private void clearSubTasksWithoutUpdateStatusEpic() {
@@ -295,7 +291,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public List<Task> getHistory(){
+    public List<Task> getHistory() {
         return historyManager.getHistory();
     }
 }
